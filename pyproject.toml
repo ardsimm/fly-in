@@ -1,0 +1,12 @@
+[project]
+name = "fly-in"
+version = "0.1.0"
+description = "Generating perfect function calling json using constraint decoding"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "black>=26.5.1",
+    "flake8>=7.3.0",
+    "mypy>=2.2.0",
+    "pydantic>=2.13.4",
+]
