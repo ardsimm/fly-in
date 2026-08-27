@@ -1,11 +1,12 @@
 VENV ?= .venv
 NAME = fly-in
+MAP ?= data/maps/easy/01_linear_path.txt
 
 $(VENV): pyproject.toml
 	uv sync
 
 run: install
-	uv run python -m src
+	uv run python -m src $(MAP)
 
 install: $(VENV)
 

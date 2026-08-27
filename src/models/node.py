@@ -1,5 +1,10 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import List
+from typing import TYPE_CHECKING, List
+
+if TYPE_CHECKING:
+    from src.models.connection import Connection
 
 
 @dataclass(frozen=True)
@@ -10,4 +15,4 @@ class Node:
     y: int
     max_drones: int
     priority: int
-    connections: List["Connection"]
+    connections: List[Connection]
