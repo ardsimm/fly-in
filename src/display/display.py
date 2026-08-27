@@ -1,5 +1,6 @@
 from abc import ABC
 from typing import Tuple
+
 from src.graph import Graph
 
 
