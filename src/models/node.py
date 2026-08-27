@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from typing import List
-from .connection import Connection
 
 
 @dataclass(frozen=True)
@@ -9,5 +8,6 @@ class Node:
     color: str
     x: int
     y: int
+    max_drones: int
     priority: int
-    connections: List[Connection]
+    connections: List["Connection"]
