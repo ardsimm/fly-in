@@ -523,12 +523,14 @@ class Parser:
                                 "File must only contain one start_hub"
                             )
                         entry_point = self.__parse_start_hub(line)
+                        nodes.append(entry_point)
                     elif line.startswith("end_hub: "):
                         if exit_point is not None:
                             raise ParsingError(
                                 "File must only contain one end_hub"
                             )
                         exit_point = self.__parse_end_hub(line)
+                        nodes.append(exit_point)
                     elif line.startswith("hub: "):
                         node = self.__parse_hub(line=line)
                         nodes.append(node)
@@ -576,7 +578,7 @@ class Parser:
             if len(connections) == 0:
                 raise ParsingError("No connections in map")
 
-            self.__normalize_coordinates(nodes + [entry_point] + [exit_point])
+            self.__normalize_coordinates(nodes)
 
             return Map(
                 nb_drones=nb_drones,
