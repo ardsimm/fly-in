@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from src.models.connection import Connection
 
 
-@dataclass(frozen=True)
+@dataclass
 class Node:
     name: str
     color: str

@@ -488,6 +488,13 @@ class Parser:
                 stripped_lines.append(stripped_line)
         return stripped_lines
 
+    def __normalize_coordinates(self, nodes: List[Node]) -> None:
+        min_x = min(nodes, key=lambda node: node.x).x
+        min_y = min(nodes, key=lambda node: node.y).y
+        for node in nodes:
+            node.x -= min_x
+            node.y -= min_y
+
     def parse(self, map_content: str) -> Map:
 
         try:
@@ -568,6 +575,8 @@ class Parser:
                 raise ParsingError("Missing end hub")
             if len(connections) == 0:
                 raise ParsingError("No connections in map")
+
+            self.__normalize_coordinates(nodes + [entry_point] + [exit_point])
 
             return Map(
                 nb_drones=nb_drones,
