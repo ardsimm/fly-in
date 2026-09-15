@@ -31,7 +31,7 @@ class Main:
             return 1
         assert map is not None
         print("Great success !")
-        return Visualiser().render()
+        return Visualiser(map).render()
 
 
 if __name__ == "__main__":
