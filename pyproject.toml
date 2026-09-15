@@ -9,4 +9,5 @@ dependencies = [
     "flake8>=7.3.0",
     "mypy>=2.2.0",
     "pydantic>=2.13.4",
+    "pygame>=2.6.1",
 ]
