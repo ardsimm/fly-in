@@ -228,17 +228,17 @@ class Parser:
                 {
                     "name": "zone",
                     "type": MetadataValueType.STRING,
-                    "ignore": False
+                    "ignore": False,
                 },
                 {
                     "name": "color",
                     "type": MetadataValueType.STRING,
-                    "ignore": False
+                    "ignore": False,
                 },
                 {
                     "name": "max_drones",
                     "type": MetadataValueType.INT,
-                    "ignore": False
+                    "ignore": False,
                 },
             ]
 
