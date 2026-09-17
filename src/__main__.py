@@ -2,17 +2,18 @@ import sys
 from traceback import print_exception
 
 from src.parser import Parser, ParsingError
+from src.visualiser import Visualiser
 
 
 class Main:
     @staticmethod
-    def main(ac: int, av: list[str]) -> None:
+    def main(ac: int, av: list[str]) -> int:
         if ac < 2:
             print("Invalid usage, this program needs a map to run")
             print("Example usage")
             print("uv run python -m src data/maps/easy/01_linear_path.txt")
             print("OR make run MAP=data/maps/easy/01_linear_path.txt")
-            sys.exit(1)
+            return 1
         map_path = av[1]
         map_content: str
         try:
@@ -20,21 +21,22 @@ class Main:
                 map_content = file.read()
         except OSError as e:
             print(f"Failed to read map file: {e}")
-            sys.exit(1)
+            return 1
         parser = Parser()
         print("Parsing map...")
         try:
             map = parser.parse(map_content)
         except ParsingError as e:
             print(e, file=sys.stderr)
-            sys.exit(1)
+            return 1
         assert map is not None
         print("Great success !")
+        return Visualiser(map).render()
 
 
 if __name__ == "__main__":
     try:
-        Main.main(len(sys.argv), sys.argv)
+        sys.exit(Main.main(len(sys.argv), sys.argv))
     except Exception as e:  # noqa: BLE001
         print("An unhandled exception occured:", file=sys.stderr)
         print_exception(e)
