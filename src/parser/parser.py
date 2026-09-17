@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Tuple, Union
 
 from typing_extensions import TypedDict
 
-from src.models import Connection, Map, Node
+from src.models import Connection, Drone, Map, Node
 
 from .parser_exception import ParsingError
 
@@ -580,12 +580,22 @@ class Parser:
 
             self.__normalize_coordinates(nodes)
 
+            drones: List[Drone] = []
+
+            for i in range(nb_drones):
+                drones.append(Drone(
+                    id = i,
+                    name=f"D{i + 1}",
+                    path=[]
+                ))
+
             return Map(
                 nb_drones=nb_drones,
                 entry_point=entry_point,
                 exit_point=exit_point,
                 nodes=nodes,
                 connections=connections,
+                drones=drones
             )
         except AssertionError as e:
             raise ParsingError(e)
