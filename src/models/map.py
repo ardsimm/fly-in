@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List
 
 from .connection import Connection
+from .drone import Drone
 from .node import Node
 
 
@@ -12,3 +13,4 @@ class Map:
     exit_point: Node
     nodes: List[Node]
     connections: List[Connection]
+    drones: List[Drone]
