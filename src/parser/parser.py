@@ -582,8 +582,10 @@ class Parser:
 
             drones: List[Drone] = []
 
+            entry_point.drones_count = nb_drones
             for i in range(nb_drones):
-                drones.append(Drone(id=i, name=f"D{i + 1}", path=[]))
+                drone = Drone(id=i, name=f"D{i + 1}", path=[])
+                drones.append(drone)
 
             return Map(
                 nb_drones=nb_drones,
