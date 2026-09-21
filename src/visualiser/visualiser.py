@@ -95,7 +95,7 @@ class Visualiser:
                     ):
                         running = False
 
-                _ = self.screen.fill("white")
+                _ = self.screen.fill((39, 43, 48))
 
                 self.__draw_elements()
 

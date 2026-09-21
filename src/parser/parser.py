@@ -564,7 +564,7 @@ class Parser:
                         connections.append(connection)
                 except ParsingError:
                     raise
-                except BaseException as e:  # noqa: BLE001
+                except Exception as e:  # noqa: BLE001
                     raise ParsingError(
                         "An unhandled error occured while parsing"
                         + f'line: "{line}":\n'
@@ -583,11 +583,7 @@ class Parser:
             drones: List[Drone] = []
 
             for i in range(nb_drones):
-                drones.append(Drone(
-                    id = i,
-                    name=f"D{i + 1}",
-                    path=[]
-                ))
+                drones.append(Drone(id=i, name=f"D{i + 1}", path=[]))
 
             return Map(
                 nb_drones=nb_drones,
@@ -595,7 +591,7 @@ class Parser:
                 exit_point=exit_point,
                 nodes=nodes,
                 connections=connections,
-                drones=drones
+                drones=drones,
             )
         except AssertionError as e:
             raise ParsingError(e)
