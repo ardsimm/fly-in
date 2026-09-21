@@ -2,6 +2,7 @@ import sys
 from traceback import print_exception
 
 from src.parser import Parser, ParsingError
+from src.simulation import PathNotFoundError, Simulation
 from src.visualiser import Visualiser
 
 
@@ -30,7 +31,12 @@ class Main:
             print(e, file=sys.stderr)
             return 1
         assert map is not None
-        print("Great success !")
+        simulation = Simulation()
+        try:
+            simulation.check_solvable(map)
+        except PathNotFoundError:
+            print("Error: map is not solvable", file=sys.stderr)
+            return 1
         return Visualiser(map).render()
 
 

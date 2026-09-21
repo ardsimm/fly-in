@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List
 
-from src.models import Node
+from src.models.node import Node
 
 
 @dataclass
