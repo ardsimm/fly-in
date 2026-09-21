@@ -6,9 +6,10 @@ import pygame
 
 from src.models import Map
 from src.visualiser.color_palette import ColorPaletteTypedDict
-from src.visualiser.elements.connection import ConnectionElement
+from src.visualiser.elements.connection_element import ConnectionElement
+from src.visualiser.elements.drone_element import DroneElement
 from src.visualiser.elements.element import Element
-from src.visualiser.elements.node import NodeElement
+from src.visualiser.elements.node_element import NodeElement
 
 
 class Visualiser:
@@ -50,6 +51,10 @@ class Visualiser:
         )
         self.elements = []
 
+    def __update_elements(self, dt: int, combined_dt: int) -> None:
+        for element in self.elements:
+            element.update(dt, combined_dt)
+
     def __draw_elements(self) -> None:
         for element in self.elements:
             element.draw()
@@ -76,7 +81,18 @@ class Visualiser:
                     max_x=max_x,
                     max_y=max_y,
                     node_bounding_rect_size=self.node_bounding_rect_size,
-                    screen=self.screen
+                    screen=self.screen,
+                )
+            )
+
+        for drone in self.map.drones:
+            self.elements.append(
+                DroneElement(
+                    drone=drone,
+                    screen=self.screen,
+                    max_x=max_x,
+                    max_y=max_y,
+                    node_bounding_rect_size=self.node_bounding_rect_size
                 )
             )
 
@@ -86,6 +102,8 @@ class Visualiser:
         clock = pygame.time.Clock()
         running = True
         self.__init_elements()
+        combined_dt: float = 0
+        dt: float = 0
         try:
             while running:
 
@@ -101,7 +119,10 @@ class Visualiser:
 
                 pygame.display.flip()
 
-                _ = clock.tick(self.target_fps)
+                self.__update_elements(dt, combined_dt)
+
+                dt = clock.tick(self.target_fps)
+                combined_dt += dt
 
         except BaseException as e:
             print(f"An unhandled excetion occured:\n{e}", file=sys.stderr)

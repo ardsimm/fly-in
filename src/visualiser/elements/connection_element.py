@@ -41,18 +41,18 @@ class ConnectionElement(Element):
         )
 
         from_x, from_y = CoordinateManager.get_node_real_coordinate(
-            node_from, self.node_bounding_rect_size
+            node_from.x, node_from.y, self.node_bounding_rect_size
         )
         from_x += padding_x
         from_y += padding_y
 
         to_x, to_y = CoordinateManager.get_node_real_coordinate(
-            node_to, self.node_bounding_rect_size
+            node_to.x, node_to.y, self.node_bounding_rect_size
         )
         to_x += padding_x
         to_y += padding_y
 
-        _ = pygame.draw.line(
+        _ = pygame.draw.aaline(
             self.screen,
             ColorManager.get_color_in_rgb("blue"),
             (from_x, from_y),

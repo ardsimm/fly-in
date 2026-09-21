@@ -14,6 +14,7 @@ class Node:
     max_drones: int
     priority: int
     connections: List[Connection]
+    drones_count: int
 
     def __init__(
         self,
@@ -32,6 +33,7 @@ class Node:
         self.max_drones = max_drones
         self.priority = priority
         self.connections = connections
+        self.drones_count = 0
 
     def __repr__(self) -> str:
         return f"Node(name={

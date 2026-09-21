@@ -45,14 +45,21 @@ class NodeElement(Element):
         node_radius = floor(self.node_bounding_rect_size / 4)
 
         circle_x, circle_y = CoordinateManager.get_node_real_coordinate(
-            self.node, self.node_bounding_rect_size
+            self.node.x, self.node.y, self.node_bounding_rect_size
         )
         circle_x += padding_x
         circle_y += padding_y
 
-        _ = pygame.draw.circle(
+        _ = pygame.draw.aacircle(
+            self.screen,
+            (250, 250, 250),
+            pygame.Vector2(circle_x, circle_y),
+            node_radius,
+        )
+
+        _ = pygame.draw.aacircle(
             self.screen,
             ColorManager.get_color_in_rgb(self.node.color),
             pygame.Vector2(circle_x, circle_y),
-            node_radius,
+            node_radius - 5,
         )

@@ -31,12 +31,23 @@ class Main:
             print(e, file=sys.stderr)
             return 1
         assert map is not None
+        print("Successfuly parsed map, checking if it is solvable...")
         simulation = Simulation()
         try:
             simulation.check_solvable(map)
         except PathNotFoundError:
             print("Error: map is not solvable", file=sys.stderr)
             return 1
+        print("Map is solvable ! solving map...")
+        print("Solution:")
+        turns = simulation.cooperative_bfs(map)
+        i = 0
+        for i, turn in enumerate(turns):
+            print(f"========== step {i + 1} ===========")
+            for step in turn:
+                print(f"D{step[0].id}:{step[1].name}")
+        print("=============================")
+        print("Solution found in", i + 1, "turn" + ("s." if i > 0 else "."))
         return Visualiser(map).render()
 
 

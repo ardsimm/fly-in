@@ -12,5 +12,5 @@ class Element(ABC):
     def draw(self) -> None:
         pass
 
-    def update(self, dt: float) -> None:
+    def update(self, dt: int, combined_dt: int) -> None:
         pass
