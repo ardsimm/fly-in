@@ -59,7 +59,7 @@ class NodeElement(Element):
 
         _ = pygame.draw.aacircle(
             self.screen,
-            ColorManager.get_color_in_rgb(self.node.color),
+            ColorManager.get_color(self.node.color),
             pygame.Vector2(circle_x, circle_y),
             node_radius - 5,
         )
