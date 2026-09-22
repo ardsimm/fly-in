@@ -1,12 +1,14 @@
 import sys
 from math import floor
-from typing import List, Tuple
+from typing import List
 
 import pygame
-from matplotlib import colors
 
-from src.models import Connection, Map, Node
+from src.models import Map
 from src.visualiser.color_palette import ColorPaletteTypedDict
+from src.visualiser.elements.connection import ConnectionElement
+from src.visualiser.elements.element import Element
+from src.visualiser.elements.node import NodeElement
 
 
 class Visualiser:
@@ -18,6 +20,7 @@ class Visualiser:
     window_height: int
     node_bounding_rect_size: int
     target_fps: int
+    elements: List[Element]
 
     def __compute_node_bounding_rect(self) -> int:
         max_x = max(self.map.nodes, key=lambda node: node.x).x
@@ -45,99 +48,47 @@ class Visualiser:
         self.screen = pygame.display.set_mode(
             (self.window_width, self.window_height)
         )
+        self.elements = []
 
-    def __get_node_real_coordinate(self, node: Node) -> Tuple[int, int]:
-        real_x = floor(
-            node.x * self.node_bounding_rect_size
-            + self.node_bounding_rect_size / 2
-        )
+    def __draw_elements(self) -> None:
+        for element in self.elements:
+            element.draw()
 
-        real_y = floor(
-            node.y * self.node_bounding_rect_size
-            + self.node_bounding_rect_size / 2
-        )
+    def __init_elements(self) -> None:
+        max_x = max(self.map.nodes, key=lambda node: node.x).x
+        max_y = max(self.map.nodes, key=lambda node: node.y).y
 
-        return (real_x, real_y)
-
-    def __get_paddings(self, max_x: int, max_y: int) -> Tuple[int, int]:
-        padding_x = 0
-        padding_y = 0
-        max_coord = max(max_x, max_y)
-        if max_coord == max_x:
-            coord_delta = max_x - max_y
-            padding_y = floor(self.node_bounding_rect_size * coord_delta / 2)
-        else:
-            coord_delta = max_y - max_x
-            padding_x = floor(self.node_bounding_rect_size * coord_delta / 2)
-
-        return (padding_x, padding_y)
-
-    def __get_color_in_rgb(self, color: str) -> Tuple[int, int, int]:
-        try:
-            r, g, b = colors.to_rgb(color)
-        except ValueError:
-            print(f"Waning: unknown color {color}, defaulting to black.")
-            color = "red"
-            r, g, b = colors.to_rgb(color)
-        return (floor(r * 255), floor(g * 255), floor(b * 255))
-
-    def __draw_connections(
-        self, connections: List[Connection], nodes: List[Node]
-    ) -> None:
-        for connection in connections:
-            node_from = connection.nodes[0]
-            node_to = connection.nodes[1]
-            max_x = max(nodes, key=lambda node: node.x).x
-            max_y = max(nodes, key=lambda node: node.y).y
-            padding_x, padding_y = self.__get_paddings(max_x, max_y)
-
-            from_x, from_y = self.__get_node_real_coordinate(node_from)
-            from_x += padding_x
-            from_y += padding_y
-
-            to_x, to_y = self.__get_node_real_coordinate(node_to)
-            to_x += padding_x
-            to_y += padding_y
-
-            _ = pygame.draw.line(
-                self.screen,
-                self.__get_color_in_rgb("blue"),
-                (from_x, from_y),
-                (to_x, to_y),
-                width=3,
+        for node in self.map.nodes:
+            self.elements.append(
+                NodeElement(
+                    screen=self.screen,
+                    node_bounding_rect_size=self.node_bounding_rect_size,
+                    max_x=max_x,
+                    max_y=max_y,
+                    node=node,
+                )
             )
 
-    def __draw_nodes(self, nodes: List[Node]) -> None:
-        padding_x = 0
-        padding_y = 0
-        max_x = max(nodes, key=lambda node: node.x).x
-        max_y = max(nodes, key=lambda node: node.y).y
-        padding_x, padding_y = self.__get_paddings(max_x, max_y)
-        node_radius = floor(self.node_bounding_rect_size / 4)
-
-        for node in nodes:
-
-            circle_x, circle_y = self.__get_node_real_coordinate(node)
-            circle_x += padding_x
-            circle_y += padding_y
-
-            _ = pygame.draw.circle(
-                self.screen,
-                self.__get_color_in_rgb(node.color),
-                pygame.Vector2(circle_x, circle_y),
-                node_radius,
+        for connection in self.map.connections:
+            self.elements.append(
+                ConnectionElement(
+                    connection=connection,
+                    max_x=max_x,
+                    max_y=max_y,
+                    node_bounding_rect_size=self.node_bounding_rect_size,
+                    screen=self.screen
+                )
             )
 
-    def __draw_map(self, map: Map) -> None:
-        self.__draw_connections(map.connections, map.nodes)
-        self.__draw_nodes(map.nodes)
+        self.elements.sort(key=lambda el: el.z_index)
 
     def render(self) -> int:
         clock = pygame.time.Clock()
         running = True
-
+        self.__init_elements()
         try:
             while running:
+
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT or (
                         event.type == pygame.KEYUP and event.key == pygame.K_q
@@ -146,11 +97,12 @@ class Visualiser:
 
                 _ = self.screen.fill("white")
 
-                self.__draw_map(self.map)
+                self.__draw_elements()
 
                 pygame.display.flip()
 
                 _ = clock.tick(self.target_fps)
+
         except BaseException as e:
             print(f"An unhandled excetion occured:\n{e}", file=sys.stderr)
             pygame.quit()
