@@ -54,7 +54,7 @@ class ConnectionElement(Element):
 
         _ = pygame.draw.aaline(
             self.screen,
-            ColorManager.get_color_in_rgb("blue"),
+            ColorManager.get_color("blue"),
             (from_x, from_y),
             (to_x, to_y),
             width=3,
