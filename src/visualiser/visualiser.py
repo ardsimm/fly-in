@@ -92,7 +92,7 @@ class Visualiser:
                     screen=self.screen,
                     max_x=max_x,
                     max_y=max_y,
-                    node_bounding_rect_size=self.node_bounding_rect_size
+                    node_bounding_rect_size=self.node_bounding_rect_size,
                 )
             )
 
@@ -102,8 +102,8 @@ class Visualiser:
         clock = pygame.time.Clock()
         running = True
         self.__init_elements()
-        combined_dt: float = 0
-        dt: float = 0
+        combined_dt: int = 0
+        dt: int = 0
         try:
             while running:
 

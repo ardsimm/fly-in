@@ -1,5 +1,5 @@
 from collections import deque
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 from src.models.drone import Drone
 from src.models.map import Map
@@ -78,7 +78,7 @@ class Simulation:
             prev_nodes: Dict[Tuple[int, Node], Node] = {}
 
             while not drone.done:
-                (turn, current_node) = queue.popleft()
+                turn, current_node = queue.popleft()
 
                 if current_node == map.exit_point:
                     break
@@ -88,14 +88,18 @@ class Simulation:
                 must_wait = False
                 next_node: Node
                 for next_node in next_nodes:
-                    if (
-                        (turn, next_node) in claimed
-                        or next_node in visited
-                    ):
+                    if (turn, next_node) in claimed or next_node in visited:
                         must_wait = True
                         continue
                     visited.add(next_node)
-                    print("At turn", turn, "visited", next_node.name, "comming from", current_node.name,)
+                    print(
+                        "At turn",
+                        turn,
+                        "visited",
+                        next_node.name,
+                        "comming from",
+                        current_node.name,
+                    )
                     prev_nodes[(turn, next_node)] = current_node
                     queue.append((turn + 1, next_node))
                     if next_node == map.exit_point:
@@ -104,6 +108,7 @@ class Simulation:
 
                 if must_wait:
                     print("At turn", turn, "waiting on", current_node.name)
+
                     prev_nodes[(turn, current_node)] = current_node
                     queue.append((turn + 1, current_node))
 
@@ -111,10 +116,13 @@ class Simulation:
             for key, value in prev_nodes.items():
                 print(f"{key[0]}, {key[1].name}:{value.name}")
 
-            current = map.exit_point
+            current: Optional[Node] = map.exit_point
             while current:
                 print("Turn:", turn, "Current:", current.name)
-                if current not in (map.entry_point, map.exit_point):
+                if (
+                    current is not None
+                    and current not in (map.entry_point, map.exit_point)
+                ):
                     claimed.add((turn, current))
                 paths[drone].append(current)
                 current = prev_nodes.get((turn, current))

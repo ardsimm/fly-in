@@ -97,7 +97,7 @@ class DroneElement(Element):
             drone_radius - 2,
         )
 
-    def move_to(self, target: pygame.Vector2):
+    def move_to(self, target: pygame.Vector2) -> None:
         self.__current_pos = self.pos
         self.__next_pos = target
         self.animation_time = 0.0
