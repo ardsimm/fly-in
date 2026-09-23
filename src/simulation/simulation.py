@@ -66,7 +66,7 @@ class Simulation:
         return result
 
     def cooperative_bfs(self, map: Map) -> List[List[Tuple[Drone, Node]]]:
-        claimed: Set[Tuple[int, Node]] = set()
+        node_allocation_table: Dict[int, Dict[Node, int]] = {}
         paths: Dict[Drone, List[Node]] = {}
         turns: List[List[Tuple[Drone, Node]]] = []
 
@@ -88,7 +88,16 @@ class Simulation:
                 must_wait = False
                 next_node: Node
                 for next_node in next_nodes:
-                    if (turn, next_node) in claimed or next_node in visited:
+                    turn_node_allocation_table = (
+                        node_allocation_table.setdefault(turn, {})
+                    )
+                    current_node_occupency = (
+                        turn_node_allocation_table.setdefault(next_node, 0)
+                    )
+                    if (
+                        current_node_occupency >= next_node.max_drones
+                        or next_node in visited
+                    ):
                         must_wait = True
                         continue
                     visited.add(next_node)
@@ -108,7 +117,6 @@ class Simulation:
 
                 if must_wait:
                     print("At turn", turn, "waiting on", current_node.name)
-
                     prev_nodes[(turn, current_node)] = current_node
                     queue.append((turn + 1, current_node))
 
@@ -119,15 +127,15 @@ class Simulation:
             current: Optional[Node] = map.exit_point
             while current:
                 print("Turn:", turn, "Current:", current.name)
-                if (
-                    current is not None
-                    and current not in (map.entry_point, map.exit_point)
+                if current is not None and current not in (
+                    map.entry_point,
+                    map.exit_point,
                 ):
-                    claimed.add((turn, current))
+                    node_allocation_table[turn][current] += 1
                 paths[drone].append(current)
                 current = prev_nodes.get((turn, current))
-                # if current is None and map.entry_point not in paths[drone]:
-                #     raise PathNotFoundError("Path not found")
+                if current is None and map.entry_point not in paths[drone]:
+                    raise PathNotFoundError("Path not found")
                 turn -= 1
             paths[drone].reverse()
             drone.path = list(paths[drone])
