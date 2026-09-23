@@ -13,8 +13,9 @@ BORING_BACKUP_DICT = {
     "orange": "orange",
     "brown": "brown",
     "teal": "teal",
-    "magenta": "magenta"
+    "magenta": "magenta",
 }
+
 
 class ColorManager:
 
@@ -30,7 +31,7 @@ class ColorManager:
                 print(
                     "ERROR: Failed to load colors file,",
                     "using boring backup dict",
-                    file=sys.stdout
+                    file=sys.stdout,
                 )
                 cls.__colors_dict = BORING_BACKUP_DICT
         assert cls.__colors_dict is not None

@@ -1,8 +1,6 @@
 from math import floor
 from typing import Tuple
 
-from src.models.node import Node
-
 
 class CoordinateManager:
     @staticmethod
