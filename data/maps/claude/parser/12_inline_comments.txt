@@ -1,0 +1,7 @@
+# Comments after content must be ignored: must parse and solve.
+nb_drones: 2 # two drones
+start_hub: start 0 0 # the start
+hub: a 1 0 [color=blue] # a hub
+end_hub: goal 2 0
+connection: start-a # first link
+connection: a-goal

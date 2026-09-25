@@ -1,0 +1,12 @@
+# Large capacities everywhere: 20 drones, 3-move path, all capacities 20.
+# Optimal is 3 turns (everyone moves together).
+nb_drones: 20
+
+start_hub: start 0 0
+hub: a 1 0 [max_drones=20]
+hub: b 2 0 [max_drones=20]
+end_hub: goal 3 0
+
+connection: start-a [max_link_capacity=20]
+connection: a-b [max_link_capacity=20]
+connection: b-goal [max_link_capacity=20]

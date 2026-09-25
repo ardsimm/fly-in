@@ -1,0 +1,8 @@
+# start and goal directly connected by a single-capacity link.
+# 50 drones must leave one per turn: optimal is 50 turns.
+nb_drones: 50
+
+start_hub: start 0 0 [color=green]
+end_hub: goal 1 0 [color=red]
+
+connection: start-goal

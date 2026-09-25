@@ -4,3 +4,7 @@ class SimulationException(Exception):
 
 class PathNotFoundError(SimulationException):
     pass
+
+
+class InvalidMoveError(SimulationException):
+    pass

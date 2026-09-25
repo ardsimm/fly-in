@@ -40,15 +40,16 @@ class Main:
             return 1
         print("Map is solvable ! solving map...")
         print("Solution:")
-        turns = simulation.cooperative_bfs(map)
+        turns = simulation.get_turns(map, simulation.cooperative_bfs(map))
         i = 0
         for i, turn in enumerate(turns):
             print(f"========== step {i + 1} ===========")
             for step in turn:
-                print(f"D{step[0].id}:{step[1].name}")
+                print(f"D{step[0].id}:{step[1].name} ({step[2]} drones)")
         print("=============================")
         print("Solution found in", i + 1, "turn" + ("s." if i > 0 else "."))
         return Visualiser(map).render()
+        return 0
 
 
 if __name__ == "__main__":
