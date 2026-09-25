@@ -1,4 +1,5 @@
 from collections import deque
+from heapq import heappop, heappush
 from typing import Dict, List, Optional, Set, Tuple
 
 from src.models.connection import Connection
@@ -99,7 +100,7 @@ class Simulation:
 
         turn = 0
         for drone in map.drones:
-            queue: deque[Tuple[int, Node]] = deque([(0, map.entry_point)])
+            queue: List[Tuple[int, Node]] = [(0, map.entry_point)]
             visited: Set[Node] = {map.entry_point}
             prev_nodes: CooperativePrevDict = {}
             end_turn = 0
@@ -107,7 +108,7 @@ class Simulation:
             print(f"=========== Computing D{drone.id} ===========")
             while not drone.done and queue:
 
-                turn, current_node = queue.popleft()
+                turn, current_node = heappop(queue)
                 # print("Visited", current_node)
 
                 if current_node == map.exit_point:
@@ -165,7 +166,7 @@ class Simulation:
 
                     visited.add(next_node)
                     prev_nodes[(turn, next_node)] = (current_node, connection)
-                    queue.append((turn + 1, next_node))
+                    heappush(queue, (turn + 1, next_node))
                     if next_node == map.exit_point:
                         drone.done = True
                         break
@@ -181,7 +182,7 @@ class Simulation:
                 ):
                     print("At turn", turn, "waiting on", current_node.name)
                     prev_nodes[(turn, current_node)] = (current_node, None)
-                    queue.append((turn + 1, current_node))
+                    heappush(queue, (turn + 1, current_node))
 
                 end_turn = turn
 

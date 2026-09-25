@@ -35,6 +35,10 @@ class Node:
         self.connections = connections
         self.drones_count = 0
 
+    @property
+    def is_restricted(self) -> bool:
+        return self.priority == 0
+
     def __repr__(self) -> str:
         return f"Node(name={
             self.name
@@ -52,3 +56,7 @@ class Node:
                 for connection in self.connections
             ]
         })"
+
+    # Override of < operator for the heapqueue in cooperative_bfs
+    def __lt__(self, other: Node) -> bool:
+        return self.priority > other.priority
