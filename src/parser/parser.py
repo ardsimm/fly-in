@@ -20,7 +20,6 @@ class MetadataFieldTypedDict(TypedDict):
 
 
 class Parser:
-
     def __split_line(self, line: str) -> List[str]:
         splitted_line: List[str] = []
         curr_part = ""
@@ -47,7 +46,7 @@ class Parser:
                 + '\nExample of expected value: "[zone=normal color=red]"'
                 + f"\ngot: {line}"
             )
-        return line[1: len(line) - 1]
+        return line[1 : len(line) - 1]
 
     def __split_metadata_fields(
         self, line: str, expected_fields: List[MetadataFieldTypedDict]
