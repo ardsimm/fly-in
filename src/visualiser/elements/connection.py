@@ -35,19 +35,23 @@ class ConnectionElement(Element):
     @override
     def draw(self) -> None:
         node_from = self.connection.nodes[0]
-        node_to = self.connection.nodes[1]
+        node_to = self.connection.no[1]
         padding_x, padding_y = CoordinateManager.get_paddings(
-            self.max_x, self.max_y, self.node_bounding_rect_size
+            self.max_x,
+            self.max_y,
+            self.node_bounding_rect_size,
+            self.screen.height,
+            self.screen.width
         )
 
         from_x, from_y = CoordinateManager.get_node_real_coordinate(
-            node_from, self.node_bounding_rect_size
+            node_from.x, node_from.y, self.node_bounding_rect_size
         )
         from_x += padding_x
         from_y += padding_y
 
         to_x, to_y = CoordinateManager.get_node_real_coordinate(
-            node_to, self.node_bounding_rect_size
+            node_to.x, node_to.y, self.node_bounding_rect_size
         )
         to_x += padding_x
         to_y += padding_y
