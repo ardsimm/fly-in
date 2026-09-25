@@ -196,11 +196,9 @@ class Simulation:
                 for connection, connection_occupency in turn_allocation_table[
                     1
                 ].items():
-                    print(
-                        f"Connection {
+                    print(f"Connection {
                             connection.nodes[0].name}-{connection.nodes[1].name
-                        }: {connection_occupency}"
-                    )
+                        }: {connection_occupency}")
 
             print("------ Previous nodes ------")
             for key, turn_allocation_table in prev_nodes.items():
