@@ -63,3 +63,9 @@ class NodeElement(Element):
             pygame.Vector2(circle_x, circle_y),
             node_radius - 5,
         )
+
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        text = font.render(self.node.name, True, "black", None)
+        textRect = text.get_rect()
+        textRect.center = (circle_x, circle_y)
+        _ = self.screen.blit(text, textRect)

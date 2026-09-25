@@ -50,6 +50,7 @@ class Visualiser:
             (self.window_width, self.window_height)
         )
         self.elements = []
+        pygame.display.set_caption("fly-in")
 
     def __update_elements(self, dt: int, combined_dt: int) -> None:
         for element in self.elements:
