@@ -1,0 +1,7 @@
+# Names may use any character except dashes and spaces.
+nb_drones: 1
+start_hub: départ 0 0
+hub: café_☕ 1 0
+end_hub: arrivée 2 0
+connection: départ-café_☕
+connection: café_☕-arrivée

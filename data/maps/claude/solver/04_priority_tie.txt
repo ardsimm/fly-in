@@ -1,0 +1,14 @@
+# Two 2-move routes, one through a priority zone, one through a normal zone.
+# The subject says priority zones should be preferred: a single drone
+# should go through fast_lane.
+nb_drones: 1
+
+start_hub: start 0 1 [color=green]
+hub: slow_lane 1 0 [color=gray]
+hub: fast_lane 1 2 [zone=priority color=gold]
+end_hub: goal 2 1 [color=red]
+
+connection: start-slow_lane
+connection: start-fast_lane
+connection: slow_lane-goal
+connection: fast_lane-goal
