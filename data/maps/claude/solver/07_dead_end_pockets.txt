@@ -1,0 +1,23 @@
+# A single corridor with dead-end pockets hanging off every cell.
+# Pockets must never be entered (no drone may get stuck in one), and the
+# planner must not deadlock or loop.
+nb_drones: 6
+
+start_hub: start 0 1 [color=green]
+hub: c1 1 1
+hub: c2 2 1
+hub: c3 3 1
+hub: p1 1 0 [color=gray max_drones=3]
+hub: p2 2 0 [color=gray max_drones=3]
+hub: p3 3 2 [color=gray max_drones=3]
+hub: deep1 1 2 [color=gray]
+end_hub: goal 4 1 [color=red]
+
+connection: start-c1
+connection: c1-c2
+connection: c2-c3
+connection: c3-goal
+connection: c1-p1
+connection: c2-p2
+connection: c3-p3
+connection: p1-deep1

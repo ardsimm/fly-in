@@ -1,0 +1,6 @@
+# Unknown line prefix (typo 'hubb:'): should be a parse error, not silently ignored.
+nb_drones: 2
+start_hub: start 0 0
+hubb: a 1 0
+end_hub: goal 2 0
+connection: start-goal

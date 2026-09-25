@@ -1,0 +1,25 @@
+# Braess-style trap: a short lane (start-a-b-goal, 3 moves) and a long lane
+# (start-c-d-e-f-goal, 5 moves), plus a cross link a-c.
+# Every drone individually gains by using start-c-a-b-goal or start-a-b-goal,
+# which keeps c occupied and starves the long lane.
+# Optimal: use both lanes independently and never the cross link.
+nb_drones: 40
+
+start_hub: start 0 1 [color=green]
+hub: a 1 0 [color=blue]
+hub: b 2 0 [color=blue]
+hub: c 1 2 [color=orange]
+hub: d 2 3 [color=orange]
+hub: e 3 3 [color=orange]
+hub: f 4 2 [color=orange]
+end_hub: goal 5 1 [color=red]
+
+connection: start-a
+connection: start-c
+connection: a-c
+connection: a-b
+connection: b-goal
+connection: c-d
+connection: d-e
+connection: e-f
+connection: f-goal

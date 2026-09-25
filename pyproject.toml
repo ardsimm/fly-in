@@ -1,7 +1,7 @@
 [project]
 name = "fly-in"
 version = "0.1.0"
-description = "Generating perfect function calling json using constraint decoding"
+description = "My project"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -10,5 +10,5 @@ dependencies = [
     "matplotlib>=3.10.9",
     "mypy>=2.2.0",
     "pydantic>=2.13.4",
-    "pygame>=2.6.1",
+    "pygame-ce>=2.5.8",
 ]

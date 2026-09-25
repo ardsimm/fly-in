@@ -11,7 +11,7 @@ run: install
 install: $(VENV)
 
 debug: install
-	uv run python -m pdb src/__main__.py
+	uv run python -m pdb -m src $(MAP)
 
 build: install
 	printf '#!/usr/bin/env bash\ncd "$$(dirname "$${BASH_SOURCE[0]}")"\nexec uv run python -m src "$$@"\n' > $(NAME)

@@ -1,0 +1,13 @@
+# Wide network that converges on the goal through links of capacity 1 and 2.
+# The end zone has no max_drones limit but its links do.
+nb_drones: 12
+
+start_hub: start 0 1
+hub: a 1 0 [max_drones=3]
+hub: b 1 2 [max_drones=3]
+end_hub: goal 2 1
+
+connection: start-a [max_link_capacity=3]
+connection: start-b [max_link_capacity=3]
+connection: a-goal [max_link_capacity=1]
+connection: b-goal [max_link_capacity=2]

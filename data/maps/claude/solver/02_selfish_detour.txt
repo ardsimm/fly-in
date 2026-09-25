@@ -1,0 +1,18 @@
+# Selfish-routing trap: a wide hall (max_drones=2) feeds the goal through a
+# single-capacity door, with a 3-move detour hall-x-y-goal next to it.
+# For any single drone, waiting one turn at the hall beats the detour
+# (+2 moves), so a drone-by-drone planner never takes it and the door
+# becomes the only throughput. Optimal: send every other drone around.
+nb_drones: 28
+
+start_hub: start 0 0 [color=green]
+hub: hall 1 0 [color=blue max_drones=2]
+hub: x 1 1 [color=orange]
+hub: y 2 1 [color=orange]
+end_hub: goal 2 0 [color=red]
+
+connection: start-hall [max_link_capacity=2]
+connection: hall-goal
+connection: hall-x
+connection: x-y
+connection: y-goal

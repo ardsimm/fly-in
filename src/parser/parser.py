@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Tuple, Union
 
 from typing_extensions import TypedDict
 
-from src.models import Connection, Map, Node
+from src.models import Connection, Drone, Map, Node
 
 from .parser_exception import ParsingError
 
@@ -20,7 +20,6 @@ class MetadataFieldTypedDict(TypedDict):
 
 
 class Parser:
-
     def __split_line(self, line: str) -> List[str]:
         splitted_line: List[str] = []
         curr_part = ""
@@ -47,7 +46,7 @@ class Parser:
                 + '\nExample of expected value: "[zone=normal color=red]"'
                 + f"\ngot: {line}"
             )
-        return line[1: len(line) - 1]
+        return line[1 : len(line) - 1]
 
     def __split_metadata_fields(
         self, line: str, expected_fields: List[MetadataFieldTypedDict]
@@ -179,6 +178,7 @@ class Parser:
     def __extract_max_drones(
         self, metadata: Dict[str, Union[str, int]]
     ) -> int:
+        print(metadata)
         max_drones = metadata.get("max_drones") or 1
         assert isinstance(max_drones, int)
         if max_drones < 0:
@@ -260,6 +260,7 @@ class Parser:
             hub_metadata = None
 
         if hub_metadata is not None:
+            print(hub_metadata)
             metadata = self.__parse_metadata(
                 line=hub_metadata, expected_fields=expected_metadata
             )
@@ -564,7 +565,7 @@ class Parser:
                         connections.append(connection)
                 except ParsingError:
                     raise
-                except BaseException as e:  # noqa: BLE001
+                except Exception as e:  # noqa: BLE001
                     raise ParsingError(
                         "An unhandled error occured while parsing"
                         + f'line: "{line}":\n'
@@ -580,12 +581,20 @@ class Parser:
 
             self.__normalize_coordinates(nodes)
 
+            drones: List[Drone] = []
+
+            entry_point.drones_count = nb_drones
+            for i in range(nb_drones):
+                drone = Drone(id=i, name=f"D{i + 1}", path=[])
+                drones.append(drone)
+
             return Map(
                 nb_drones=nb_drones,
                 entry_point=entry_point,
                 exit_point=exit_point,
                 nodes=nodes,
                 connections=connections,
+                drones=drones,
             )
         except AssertionError as e:
             raise ParsingError(e)

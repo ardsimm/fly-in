@@ -1,20 +1,18 @@
 from math import floor
 from typing import Tuple
 
-from src.models.node import Node
-
 
 class CoordinateManager:
     @staticmethod
     def get_node_real_coordinate(
-        node: Node, node_bounding_rect_size: int
+        x: float, y: float, node_bounding_rect_size: int
     ) -> Tuple[int, int]:
         real_x = floor(
-            node.x * node_bounding_rect_size + node_bounding_rect_size / 2
+            x * node_bounding_rect_size + node_bounding_rect_size / 2
         )
 
         real_y = floor(
-            node.y * node_bounding_rect_size + node_bounding_rect_size / 2
+            y * node_bounding_rect_size + node_bounding_rect_size / 2
         )
 
         return (real_x, real_y)

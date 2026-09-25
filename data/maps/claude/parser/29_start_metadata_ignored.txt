@@ -1,0 +1,7 @@
+# max_drones on start/end is ignored, not an error (VII.4): must parse and solve.
+nb_drones: 3
+start_hub: start 0 0 [max_drones=1]
+hub: a 1 0 [max_drones=3]
+end_hub: goal 2 0 [max_drones=1]
+connection: start-a [max_link_capacity=3]
+connection: a-goal [max_link_capacity=3]
