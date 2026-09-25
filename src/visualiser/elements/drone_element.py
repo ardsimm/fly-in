@@ -73,7 +73,11 @@ class DroneElement(Element):
         padding_x = 0
         padding_y = 0
         padding_x, padding_y = CoordinateManager.get_paddings(
-            self.max_x, self.max_y, self.node_bounding_rect_size
+            self.max_x,
+            self.max_y,
+            self.node_bounding_rect_size,
+            self.screen.height,
+            self.screen.width,
         )
         drone_radius = floor(self.node_bounding_rect_size / 10)
 

@@ -41,6 +41,5 @@ class ColorManager:
     def get_color(cls, color_name: str) -> str:
         color_value = cls.get_colors_dict().get(color_name)
         if not color_value:
-            # print(f"Waning: unknown color {color_name}, defaulting to black.")
             return "black"
         return color_value
