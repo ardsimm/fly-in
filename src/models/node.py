@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
+
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from src.models.connection import Connection
@@ -39,6 +41,7 @@ class Node:
     def is_restricted(self) -> bool:
         return self.priority == 0
 
+    @override
     def __repr__(self) -> str:
         return f"Node(name={
             self.name
@@ -57,6 +60,10 @@ class Node:
             ]
         })"
 
+    @override
+    def __str__(self) -> str:
+        return self.name
+
     # Override of < operator for the heapqueue in cooperative_bfs
-    def __lt__(self, other: Node) -> bool:
-        return self.priority > other.priority
+    def __lt__(self, other: Optional[Node]) -> bool:
+        return other is None or self.priority > other.priority

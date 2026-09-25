@@ -1,6 +1,9 @@
 import sys
 from traceback import print_exception
+from typing import List
 
+from src.models.connection import Connection
+from src.models.node import Node
 from src.parser import Parser, ParsingError
 from src.simulation import PathNotFoundError, Simulation
 from src.visualiser import Visualiser
@@ -40,16 +43,21 @@ class Main:
             return 1
         print("Map is solvable ! solving map...")
         print("Solution:")
-        turns = simulation.get_turns(map, simulation.cooperative_bfs(map))
-        i = 0
-        for i, turn in enumerate(turns):
-            print(f"========== step {i + 1} ===========")
-            for step in turn:
-                print(f"D{step[0].id}:{step[1].name} ({step[2]} drones)")
-        print("=============================")
-        print("Solution found in", i + 1, "turn" + ("s." if i > 0 else "."))
+        paths = simulation.cooperative_bfs(map)
+        for drone, path in paths.items():
+            steps: List[str] = []
+            for step in path:
+                if isinstance(step, Node):
+                    steps.append(step.name)
+                elif isinstance(step, Connection):
+                    steps.append(f"{step.nodes[0].name}-{step.nodes[1].name}")
+                elif step is None:
+                    steps.append("[None]")
+            print(
+                f"Drone D{drone.id}:",
+                "->".join(steps)
+            )
         return Visualiser(map).render()
-        return 0
 
 
 if __name__ == "__main__":

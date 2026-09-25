@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, Tuple, Union
 
 from typing_extensions import TypedDict
 
+from src.enums.node_priority import NodePriority
 from src.models import Connection, Drone, Map, Node
 
 from .parser_exception import ParsingError
@@ -190,10 +191,10 @@ class Parser:
 
     def __map_priority(self, zone: str, hub_name: str) -> int:
         mapped_priorities = {
-            "blocked": -1,
-            "restricted": 0,
-            "normal": 1,
-            "priority": 2,
+            "blocked": NodePriority.blocked.value,
+            "restricted": NodePriority.restricted.value,
+            "normal": NodePriority.normal.value,
+            "priority": NodePriority.priority.value,
         }
         priority = mapped_priorities.get(zone)
         if priority is None:

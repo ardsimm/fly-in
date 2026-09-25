@@ -27,13 +27,12 @@ class CoordinateManager:
     ) -> Tuple[int, int]:
         padding_x = 0
         padding_y = 0
-        max_coord = max(max_x, max_y)
-        if max_coord == max_x:
+        if max_x * node_bounding_rect_size != window_width:
             coord_delta = floor(window_height / node_bounding_rect_size) - (
                 max_y + 1
             )
             padding_y = floor(node_bounding_rect_size * coord_delta / 2)
-        else:
+        if max_y * node_bounding_rect_size != window_height:
             coord_delta = floor(window_width / node_bounding_rect_size) - (
                 max_x + 1
             )

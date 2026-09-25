@@ -5,6 +5,7 @@ from pygame.math import smoothstep
 from typing_extensions import final, override
 
 from src.models.drone import Drone
+from src.models.node import Node
 from src.visualiser.elements.element import Element
 from src.visualiser.managers.coordinate_manager import CoordinateManager
 
@@ -111,10 +112,19 @@ class DroneElement(Element):
         if self.animation_time >= 1:
             self.current_turn += 1
             if self.current_turn < len(self.drone.path):
+                target = self.drone.path[self.current_turn]
+                target_x: float
+                target_y: float
+                if isinstance(target, Node):
+                    target_x = target.x
+                    target_y = target.y
+                else:
+                    target_x = (target.nodes[0].x + target.nodes[1].x) / 2
+                    target_y = (target.nodes[0].y + target.nodes[1].y) / 2
                 self.move_to(
                     target=pygame.Vector2(
-                        self.drone.path[self.current_turn].x,
-                        self.drone.path[self.current_turn].y,
+                        target_x,
+                        target_y,
                     )
                 )
         self.animation_time += dt / self.animation_duration

@@ -3,7 +3,7 @@ from math import floor, sqrt
 import pygame
 from typing_extensions import final, override
 
-from src.models import connection
+from src.enums.node_priority import NodePriority
 from src.models.connection import Connection
 from src.visualiser.elements.element import Element
 from src.visualiser.managers.color_manager import ColorManager
@@ -61,14 +61,20 @@ class ConnectionElement(Element):
 
         connection_color = ColorManager.get_color(
             "red"
-            if self.connection.nodes[1].priority == 0
-            else (
+            if (
+                self.connection.nodes[1].priority
+                == NodePriority.restricted.value
+            ) else (
                 "blue"
-                if self.connection.nodes[1].priority == 2
-                else (
+                if (
+                    self.connection.nodes[1].priority
+                    == NodePriority.priority.value
+                ) else (
                     "white"
-                    if self.connection.nodes[1].priority == 1
-                    else "black"
+                    if (
+                        self.connection.nodes[1].priority
+                        == NodePriority.normal.value
+                    ) else "black"
                 )
             )
         )

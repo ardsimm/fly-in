@@ -1,5 +1,6 @@
 import sys
 from math import floor
+from traceback import print_exception
 from typing import List, Optional
 
 import pygame
@@ -30,7 +31,7 @@ class Visualiser:
         max_y = max(self.map.nodes, key=lambda node: node.y).y
         max_coord = max(max_x, max_y)
         return floor(
-            max(self.window_width, self.window_height) / (max_coord + 1)
+            min(self.window_width, self.window_height) / (max_coord + 1)
         )
 
     def __init__(
@@ -139,6 +140,7 @@ class Visualiser:
 
         except BaseException as e:
             print(f"An unhandled excetion occured:\n{e}", file=sys.stderr)
+            print_exception(e)
             pygame.quit()
             return 1
 
