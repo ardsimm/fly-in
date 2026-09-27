@@ -43,20 +43,25 @@ class Main:
             return 1
         print("Map is solvable ! solving map...")
         print("Solution:")
-        paths = simulation.cooperative_bfs(map)
-        for drone, path in paths.items():
-            steps: List[str] = []
-            for step in path:
-                if isinstance(step, Node):
-                    steps.append(step.name)
-                elif isinstance(step, Connection):
-                    steps.append(f"{step.nodes[0].name}-{step.nodes[1].name}")
-                elif step is None:
-                    steps.append("[None]")
-            print(
-                f"Drone D{drone.id}:",
-                "->".join(steps)
-            )
+        try:
+            paths = simulation.cooperative_bfs(map)
+            for drone, path in paths.items():
+                steps: List[str] = []
+                for step in path:
+                    if isinstance(step, Node):
+                        steps.append(step.name)
+                    elif isinstance(step, Connection):
+                        steps.append(f"{step.nodes[0].name}-{step.nodes[1].name}")
+                    elif step is None:
+                        steps.append("[None]")
+                print(
+                    f"Drone D{drone.id}:",
+                    "->".join(steps)
+                )
+        except PathNotFoundError as e:
+            print("Failed to find solution")
+            print_exception(e)
+            return 1
         return Visualiser(map).render()
 
 
