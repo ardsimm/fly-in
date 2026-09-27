@@ -1,0 +1,17 @@
+# Property 3: r holds one drone, and the link start-r is wide (3), so
+# nothing but r's capacity stops drones from taking off together.
+# D1 must NOT take off at t0: it would land at t2 while D0 is still in r.
+# It may take off at t1 (D0 leaves r at t3, D1 lands at t3).
+# Expected:
+#   D0: start, start-r, r, goal
+#   D1: start, start, start-r, r, goal
+#   D2: start, start, start, start-r, r, goal
+# => 5 turns, r never holds 2 drones.
+nb_drones: 3
+
+start_hub: start 0 0 [color=green]
+hub: r 1 0 [zone=restricted color=red]
+end_hub: goal 2 0 [color=yellow]
+
+connection: start-r [max_link_capacity=3]
+connection: r-goal [max_link_capacity=3]

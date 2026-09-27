@@ -5,7 +5,40 @@ Maps written to stress the solver and the parser. Results and analysis are in
 (moves of the last drone), computed with a time-expanded max-flow; the program's
 "Solution found in N turns" line currently prints optimal + 1 (see the report).
 
-None of these maps use `zone=restricted` (not supported yet).
+Only the maps in `restricted/` use `zone=restricted`. Their results and the design diagnosis
+are in `claude/reports/report_1_20260927-151401.md`.
+
+## restricted/
+
+Checks for restricted zones. A move into a restricted zone R takes 2 turns: turn t in zone A,
+turn t+1 on the connection A-R (printed `D<ID>-<connection>`), turn t+2 in R. The properties
+checked are:
+
+- **P1**: a drone entering a restricted zone spends exactly one turn on the connection (never
+  zero, never two), and only connections leading to a restricted zone are used this way.
+- **P2**: a drone on such a connection is in the restricted zone at the other end on the next
+  turn. It never waits on the connection and never lands back where it came from.
+- **P3**: a drone never takes off towards a restricted zone that will be full on its landing
+  turn (t+2). In a schedule, this shows up as a zone holding more than `max_drones`.
+
+Link capacity: a drone in flight is counted on its connection for both halves of the move
+(take-off turn and landing turn). This is my reading of "the drone occupies the connection
+during transit". Maps 08 and 09 are the only ones whose expected turn count depends on it.
+
+| Map | Checks | Expected |
+|---|---|---|
+| 01_single_restricted.txt | P1, P2 | `start start-r r goal`, 3 turns |
+| 02_restricted_middle.txt | P1, P2, leaving R costs 1 turn | `start a a-r r b goal`, 5 turns |
+| 03_restricted_chain_forward.txt | P2 when both ends of a connection are restricted (`r1-r2`) | 5 turns, lands in r2 |
+| 04_restricted_chain_backward.txt | same, connection written `r2-r1` | 5 turns, lands in r2 |
+| 05_arrival_capacity_queue.txt | P3, wide link, r holds 1 | 5 turns, r never holds 2 |
+| 06_arrival_capacity_converging.txt | P3, two drones reaching r from two sides | 5 turns, r never holds 2 |
+| 07_arrival_capacity_blocked_exit.txt | P3 while r is emptied slowly | 8 turns, r and c never hold 2 |
+| 08_restricted_wide.txt | r holds 2: two drones land together | 5 turns (4 if in-flight drones use only one link turn) |
+| 09_link_busy_in_flight.txt | link of capacity 1 while a drone is in flight | never 2 drones on start-r at once |
+| 10_restricted_goal.txt | restricted end hub | `start a a-goal goal`, 3 turns |
+| 11_restricted_vs_normal.txt | time cost, not hop count, decides | `start c goal`, 2 turns |
+| 12_restricted_mixed_traffic.txt | restricted lane next to a normal lane, 8 drones | all properties hold, restricted lane used: 9 turns (with the link rule above, the restricted lane takes one drone every 2 turns) |
 
 ## solver/
 

@@ -1,0 +1,18 @@
+# Property 3 with drones reaching r from two different sides.
+# D0 goes start-a-r, D1 goes start-b-r (or waits). Both would land in r
+# (max_drones=1) on the same turn if they take off together.
+# The second drone must wait in a or b instead of taking off.
+# Expected: 5 turns, r never holds 2 drones.
+nb_drones: 2
+
+start_hub: start 0 1 [color=green]
+hub: a 1 0
+hub: b 1 2
+hub: r 2 1 [zone=restricted color=red]
+end_hub: goal 3 1 [color=yellow]
+
+connection: start-a
+connection: start-b
+connection: a-r
+connection: b-r
+connection: r-goal [max_link_capacity=2]

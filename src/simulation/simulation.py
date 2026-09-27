@@ -101,8 +101,8 @@ class Simulation:
         turn = 0
         for drone in map.drones:
             queue: List[
-                Tuple[int, int, Optional[Node], Optional[Connection]]
-            ] = [(0, 0, map.entry_point, None)]
+                Tuple[int, int, Optional[Node], Tuple[Optional[Connection], Optional[Node]]]
+            ] = [(0, 0, map.entry_point, (None, None))]
             visited: Set[Node] = {map.entry_point}
             prev_nodes: Dict[
                 Tuple[int, Union[Node, Connection]],
@@ -110,10 +110,13 @@ class Simulation:
             ] = {}
             end_turn = 0
             insertion_idx = 1
-            # print(f"=========== Computing D{drone.id} ===========")
+
+            print(f"=========== Computing D{drone.id} ===========")
             while not drone.done and queue:
 
-                turn, _, current, current_connection = heappop(queue)
+                turn, _, current, (
+                    transit_connection, transit_destination
+                ) = heappop(queue)
 
                 if current == map.exit_point:
                     break
@@ -138,7 +141,7 @@ class Simulation:
 
                     for connection in current.connections:
 
-                        if connection == current_connection:
+                        if connection == transit_connection:
                             continue
 
                         next_node = next(
@@ -180,9 +183,19 @@ class Simulation:
                             insertion_idx += 1
                             heappush(
                                 queue,
-                                (turn + 1, insertion_idx, next_node, None),
+                                (turn + 1, insertion_idx, next_node, (None, None)),
                             )
                         else:
+
+                            restricted_node_occupency = (
+                                allocation_table.setdefault(turn + 2, {})
+                                .setdefault(next_node, 0)
+                            )
+
+                            if restricted_node_occupency >= next_node.max_drones:
+                                can_wait = True
+                                continue
+
                             prev_nodes[(turn, connection)] = (
                                 current,
                                 connection,
@@ -190,30 +203,19 @@ class Simulation:
                             insertion_idx += 1
                             heappush(
                                 queue,
-                                (turn + 1, insertion_idx, None, connection),
+                                (turn + 1, insertion_idx, None, (connection, next_node)),
+                            )
+                            heappush(
+                                queue,
+                                (turn + 2, insertion_idx, next_node, (None, None)),
                             )
                         if next_node == map.exit_point:
                             drone.done = True
                             break
-                elif current_connection:
-                    next_node = next(
-                        iter(
-                            node
-                            for node in current_connection.nodes
-                            if node.priority == NodePriority.restricted.value
-                        )
-                    )
-                    prev_nodes[(turn, next_node)] = (current_connection, None)
-                    insertion_idx += 1
-                    heappush(
-                        queue,
-                        (
-                            turn + 1,
-                            insertion_idx,
-                            next_node,
-                            current_connection,
-                        ),
-                    )
+                elif transit_connection:
+                    assert transit_destination is not None
+                    next_node = transit_destination
+                    prev_nodes[(turn, next_node)] = (transit_connection, None)
 
                 if (
                     can_wait
@@ -231,7 +233,7 @@ class Simulation:
                         None,
                     )
                     insertion_idx += 1
-                    heappush(queue, (turn + 1, insertion_idx, current, None))
+                    heappush(queue, (turn + 1, insertion_idx, current, (None, None)))
 
                 end_turn = turn
 

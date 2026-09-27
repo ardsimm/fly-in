@@ -1,0 +1,16 @@
+# Property 2: two adjacent restricted zones. The connection r1-r2 has a
+# restricted zone at BOTH ends, so "the restricted end of the connection"
+# is ambiguous: the drone on r1-r2 must land in r2 (where it is going),
+# never back in r1.
+# Connection written in travel order (r1-r2).
+# Expected: t0 start, t1 start-r1, t2 r1, t3 r1-r2, t4 r2, t5 goal => 5 turns.
+nb_drones: 1
+
+start_hub: start 0 0 [color=green]
+hub: r1 1 0 [zone=restricted color=red]
+hub: r2 2 0 [zone=restricted color=red]
+end_hub: goal 3 0 [color=yellow]
+
+connection: start-r1
+connection: r1-r2
+connection: r2-goal

@@ -1,0 +1,14 @@
+# Property 1 and 2, simplest case.
+# One drone, start -> r (restricted) -> goal.
+# Expected path, one entry per turn:
+#   t0 start, t1 start-r (in flight), t2 r, t3 goal  => 3 turns.
+# The drone must appear on the connection for exactly one turn and then
+# be in r on the very next turn.
+nb_drones: 1
+
+start_hub: start 0 0 [color=green]
+hub: r 1 0 [zone=restricted color=red]
+end_hub: goal 2 0 [color=yellow]
+
+connection: start-r
+connection: r-goal

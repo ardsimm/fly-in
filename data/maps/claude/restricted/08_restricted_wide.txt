@@ -1,0 +1,13 @@
+# Restricted zone with room for 2 drones and a link of capacity 2:
+# 2 drones may fly together and land together.
+# Expected (4 drones): D0,D1 take off at t0, land t2, goal t3;
+# D2,D3 take off at t1 or t2 depending on the link rule, never more than
+# 2 in r. Expected 4 or 5 turns (see report on link occupancy in flight).
+nb_drones: 4
+
+start_hub: start 0 0 [color=green]
+hub: r 1 0 [zone=restricted color=red max_drones=2]
+end_hub: goal 2 0 [color=yellow]
+
+connection: start-r [max_link_capacity=2]
+connection: r-goal [max_link_capacity=2]
