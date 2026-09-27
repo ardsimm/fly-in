@@ -46,16 +46,14 @@ class NodeElement(Element):
     def update_hovered(self, mouse_pos: Tuple[int, int]) -> None:
         mouse_x, mouse_y = mouse_pos
         top_left = (
-            self.node.x
-            * self.node_bounding_rect_size,
-            self.node.y
-            * self.node_bounding_rect_size
+            self.node.x * self.node_bounding_rect_size,
+            self.node.y * self.node_bounding_rect_size,
         )
         bottom_right = (
             self.node.x * self.node_bounding_rect_size
             + self.node_bounding_rect_size,
             self.node.y * self.node_bounding_rect_size
-            + self.node_bounding_rect_size
+            + self.node_bounding_rect_size,
         )
 
         self.hovered = (

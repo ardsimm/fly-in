@@ -1,4 +1,4 @@
-from math import floor, sqrt
+from math import floor
 
 import pygame
 from typing_extensions import final, override
@@ -64,17 +64,20 @@ class ConnectionElement(Element):
             if (
                 self.connection.nodes[1].priority
                 == NodePriority.restricted.value
-            ) else (
+            )
+            else (
                 "blue"
                 if (
                     self.connection.nodes[1].priority
                     == NodePriority.priority.value
-                ) else (
+                )
+                else (
                     "white"
                     if (
                         self.connection.nodes[1].priority
                         == NodePriority.normal.value
-                    ) else "black"
+                    )
+                    else "black"
                 )
             )
         )
@@ -87,26 +90,19 @@ class ConnectionElement(Element):
             width=3,
         )
 
-        font = pygame.font.Font("freesansbold.ttf", floor(
-            self.node_bounding_rect_size / 6
-        ))
+        font = pygame.font.Font(
+            "freesansbold.ttf", floor(self.node_bounding_rect_size / 6)
+        )
         capacity_font_render = font.render(
-            f"{
-            self.connection.capacity
-        }",
+            f"{self.connection.capacity}",
             True,
             (
                 "black"
-                if (
-                    connection_color == ColorManager.get_color("white")
-                )
+                if (connection_color == ColorManager.get_color("white"))
                 else "white"
             ),
             connection_color,
         )
         capacity_rect = capacity_font_render.get_rect()
-        capacity_rect.center = (
-            (from_x + to_x) / 2,
-            (from_y + to_y) / 2
-        )
+        capacity_rect.center = ((from_x + to_x) / 2, (from_y + to_y) / 2)
         _ = self.screen.blit(capacity_font_render, capacity_rect)

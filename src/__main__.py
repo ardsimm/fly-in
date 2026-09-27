@@ -1,8 +1,6 @@
 import sys
 from traceback import print_exception
 
-from src.models.connection import Connection
-from src.models.node import Node
 from src.parser import Parser, ParsingError
 from src.simulation import PathNotFoundError, Simulation
 from src.visualiser import Visualiser

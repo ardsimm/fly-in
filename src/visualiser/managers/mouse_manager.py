@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple
 
 
 class MouseManager:
@@ -6,8 +6,7 @@ class MouseManager:
     __instance: Optional["MouseManager"] = None
 
     __mouse_move_subscribers: Dict[
-        object,
-        Callable[[object, Tuple[int, int]], None]
+        object, Callable[[object, Tuple[int, int]], None]
     ] = {}
 
     __cursor_position: Tuple[int, int] = (0, 0)
@@ -31,6 +30,6 @@ class MouseManager:
     def mouse_move_subscribe(
         self,
         subscriber: object,
-        handler: Callable[[Any, Tuple[int, int]], None]
+        handler: Callable[[Any, Tuple[int, int]], None],
     ) -> None:
         self.__mouse_move_subscribers[subscriber] = handler

@@ -1,10 +1,6 @@
-import os
-import sys
 from math import floor
-from traceback import print_exception
 from typing import List, Optional
 
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 
 from src.models import Map
@@ -124,9 +120,7 @@ class Visualiser:
                 ):
                     running = False
                 elif event.type == pygame.MOUSEMOTION:
-                    self.mouse_manager.cursor_position = (
-                        pygame.mouse.get_pos()
-                    )
+                    self.mouse_manager.cursor_position = pygame.mouse.get_pos()
 
             _ = self.screen.fill((39, 43, 48))
 

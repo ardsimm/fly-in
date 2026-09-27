@@ -1,5 +1,4 @@
 from collections import deque
-from dis import Instruction
 from heapq import heappop, heappush
 from typing import Dict, List, Optional, Set, Tuple, Union
 
@@ -9,7 +8,6 @@ from src.models.drone import Drone
 from src.models.map import Map
 from src.models.node import Node
 from src.simulation.simulation_exceptions import (
-    InvalidMoveError,
     PathNotFoundError,
 )
 
@@ -101,7 +99,12 @@ class Simulation:
         turn = 0
         for drone in map.drones:
             queue: List[
-                Tuple[int, int, Optional[Node], Tuple[Optional[Connection], Optional[Node]]]
+                Tuple[
+                    int,
+                    int,
+                    Optional[Node],
+                    Tuple[Optional[Connection], Optional[Node]],
+                ]
             ] = [(0, 0, map.entry_point, (None, None))]
             visited: Set[Node] = {map.entry_point}
             prev_nodes: Dict[
@@ -113,9 +116,9 @@ class Simulation:
 
             while not drone.done and queue:
 
-                turn, _, current, (
-                    transit_connection, transit_destination
-                ) = heappop(queue)
+                turn, _, current, (transit_connection, transit_destination) = (
+                    heappop(queue)
+                )
 
                 next_turn_allocation_table = allocation_table.setdefault(
                     turn + 1, ({})
@@ -179,18 +182,27 @@ class Simulation:
                             insertion_idx += 1
                             heappush(
                                 queue,
-                                (turn + 1, insertion_idx, next_node, (None, None)),
+                                (
+                                    turn + 1,
+                                    insertion_idx,
+                                    next_node,
+                                    (None, None),
+                                ),
                             )
                             if next_node == map.exit_point:
                                 drone.done = True
                                 break
                         else:
                             restricted_node_occupency = (
-                                allocation_table.setdefault(turn + 2, {})
-                                .setdefault(next_node, 0)
+                                allocation_table.setdefault(
+                                    turn + 2, {}
+                                ).setdefault(next_node, 0)
                             )
 
-                            if restricted_node_occupency >= next_node.max_drones:
+                            if (
+                                restricted_node_occupency
+                                >= next_node.max_drones
+                            ):
                                 can_wait = True
                                 continue
 
@@ -201,14 +213,23 @@ class Simulation:
                             insertion_idx += 1
                             heappush(
                                 queue,
-                                (turn + 1, insertion_idx, None, (connection, next_node)),
+                                (
+                                    turn + 1,
+                                    insertion_idx,
+                                    None,
+                                    (connection, next_node),
+                                ),
                             )
                             heappush(
                                 queue,
-                                (turn + 2, insertion_idx, next_node, (None, None)),
+                                (
+                                    turn + 2,
+                                    insertion_idx,
+                                    next_node,
+                                    (None, None),
+                                ),
                             )
                             visited.add(next_node)
-
 
                 elif transit_connection:
                     assert transit_destination is not None
@@ -231,33 +252,43 @@ class Simulation:
                         None,
                     )
                     insertion_idx += 1
-                    heappush(queue, (turn + 1, insertion_idx, current, (None, None)))
+                    heappush(
+                        queue, (turn + 1, insertion_idx, current, (None, None))
+                    )
 
                 end_turn = turn
 
             paths[drone] = []
 
             turn = end_turn
-            current: Optional[Union[Node, Connection]] = map.exit_point
+            current_step: Optional[Union[Node, Connection]] = map.exit_point
+            current_connection: Optional[Connection] = None
+            while current_step:
 
-            while current:
+                paths[drone].append(current_step)
 
-                paths[drone].append(current)
-
-                current, connection = prev_nodes.get((turn, current)) or (
+                current_step, current_connection = prev_nodes.get(
+                    (turn, current_step)
+                ) or (
                     None,
                     None,
                 )
-                if current is None and map.entry_point not in paths[drone]:
+
+                if (
+                    current_step is None
+                    and map.entry_point not in paths[drone]
+                ):
                     raise PathNotFoundError("Path not found")
 
-                if current is not None:
-                    _ = allocation_table[turn].setdefault(current, 0)
-                    allocation_table[turn][current] += 1
+                if current_step is not None:
+                    _ = allocation_table[turn].setdefault(current_step, 0)
+                    allocation_table[turn][current_step] += 1
 
-                if connection is not None:
-                    _ = allocation_table[turn].setdefault(connection, 0)
-                    allocation_table[turn][connection] += 1
+                if current_connection is not None:
+                    _ = allocation_table[turn].setdefault(
+                        current_connection, 0
+                    )
+                    allocation_table[turn][current_connection] += 1
 
                 turn -= 1
 
@@ -281,8 +312,7 @@ class Simulation:
         return turns
 
     def print_turns(
-        self,
-        turns: List[List[Tuple[Drone, Union[Connection, Node]]]]
+        self, turns: List[List[Tuple[Drone, Union[Connection, Node]]]]
     ) -> None:
         for turn in turns:
             for drone, step in turn:
