@@ -43,14 +43,18 @@ class DroneElement(Element):
         self.current_turn = 0
         self.path_len = len(self.drone.path)
         self.last_move_dt = 0
-        self.__current_pos = pygame.Vector2(
-            self.drone.path[self.current_turn].x,
-            self.drone.path[self.current_turn].y,
-        )
-        self.__next_pos = pygame.Vector2(
-            self.drone.path[self.current_turn].x,
-            self.drone.path[self.current_turn].y,
-        )
+        if len(self.drone.path):
+            self.__current_pos = pygame.Vector2(
+                self.drone.path[self.current_turn].x,
+                self.drone.path[self.current_turn].y,
+            )
+            self.__next_pos = pygame.Vector2(
+                self.drone.path[self.current_turn].x,
+                self.drone.path[self.current_turn].y,
+            )
+        else:
+            self.__current_pos = (0, 0)
+            self.__next_pos = (0, 0)
         self.animation_time = 0
         self.animation_duration = 500
 

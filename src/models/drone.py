@@ -21,3 +21,7 @@ class Drone:
     @override
     def __hash__(self) -> int:
         return hash(self.id)
+
+    @override
+    def __str__(self) -> str:
+        return f"D{self.id}"

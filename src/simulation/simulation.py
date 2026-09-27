@@ -118,8 +118,7 @@ class Simulation:
                     transit_connection, transit_destination
                 ) = heappop(queue)
 
-                if current == map.exit_point:
-                    break
+                print("Turn", turn, current, transit_connection, transit_destination)
 
                 next_turn_allocation_table = allocation_table.setdefault(
                     turn + 1, ({})
@@ -174,8 +173,8 @@ class Simulation:
                             can_wait = True
                             continue
 
-                        visited.add(next_node)
                         if next_node.priority != NodePriority.restricted.value:
+                            visited.add(next_node)
                             prev_nodes[(turn, next_node)] = (
                                 current,
                                 connection,
@@ -185,8 +184,10 @@ class Simulation:
                                 queue,
                                 (turn + 1, insertion_idx, next_node, (None, None)),
                             )
+                            if next_node == map.exit_point:
+                                drone.done = True
+                                break
                         else:
-
                             restricted_node_occupency = (
                                 allocation_table.setdefault(turn + 2, {})
                                 .setdefault(next_node, 0)
@@ -209,14 +210,17 @@ class Simulation:
                                 queue,
                                 (turn + 2, insertion_idx, next_node, (None, None)),
                             )
-                        if next_node == map.exit_point:
-                            drone.done = True
-                            break
+                            visited.add(next_node)
+
+
                 elif transit_connection:
                     assert transit_destination is not None
                     next_node = transit_destination
                     prev_nodes[(turn, next_node)] = (transit_connection, None)
-
+                    print("oeoe 1")
+                    if transit_destination == map.exit_point:
+                        print("oeoe 2")
+                        drone.done = True
                 if (
                     can_wait
                     and not all_visited
@@ -227,7 +231,6 @@ class Simulation:
                         or len(current.connections) > 1
                     )
                 ):
-                    # print("At turn", turn, "waiting on", current.name)
                     prev_nodes[(turn, current)] = (
                         current,
                         None,
@@ -284,42 +287,27 @@ class Simulation:
         return paths
 
     def get_turns(
-        self, map: Map, paths: Dict[Drone, List[Node]]
-    ) -> List[List[Tuple[Drone, Node, int]]]:
-        nodes_occupency: Dict[int, Dict[Node, int]] = {}
-        max_turn = max([len(path) for path in paths.values()])
-        turns: List[List[Tuple[Drone, Node, int]]] = []
-        for i in range(max_turn):
-            print(f"----- Turn {i} -----")
-            turn: List[Tuple[Drone, Node, int]] = []
+        self, map: Map, paths: Dict[Drone, List[Union[Node, Connection]]]
+    ) -> List[List[Tuple[Drone, Union[Connection, Node]]]]:
+        turns: List[List[Tuple[Drone, Union[Connection, Node]]]] = []
+        max_path_len = max([len(path) for path in paths.values()])
+
+        for i in range(max_path_len):
+            turn: List[Tuple[Drone, Union[Connection, Node]]] = []
             for drone, path in paths.items():
-                if i >= len(path):
-                    continue
-                current_node = path[i]
-
-                _ = nodes_occupency.setdefault(i, {}).setdefault(
-                    current_node, 0
-                )
-                nodes_occupency[i][current_node] += 1
-
-                if i > 0:
-                    nodes_occupency[i - 1][path[i - 1]] -= 1
-
-                step = (drone, path[i], nodes_occupency[i][current_node])
-                print(f"D{step[0].id}:{step[1].name} ({step[2]} drones)")
-                if (
-                    current_node != map.entry_point
-                    and current_node != map.exit_point
-                    and nodes_occupency[i][current_node]
-                    > current_node.max_drones
-                ):
-                    raise InvalidMoveError(
-                        f"Invalid move D{drone.id}->{current_node.name}(capacity:{current_node.max_drones}, occupency: {nodes_occupency[i][current_node]})"
-                    )
-
-                turn.append(step)
+                if len(path) > i and (i == 0 or path[i] != path[i - 1]):
+                    turn.append((drone, path[i]))
             turns.append(turn)
         return turns
+
+    def print_turns(
+        self,
+        turns: List[List[Tuple[Drone, Union[Connection, Node]]]]
+    ) -> None:
+        for turn in turns:
+            for drone, step in turn:
+                print(drone, step, sep="-", end=" ")
+            print()
 
     def check_solvable(self, map: Map) -> None:
         _ = self.bfs(map.entry_point, map.exit_point)

@@ -45,24 +45,15 @@ class Main:
         print("Solution:")
         try:
             paths = simulation.cooperative_bfs(map)
-            for drone, path in paths.items():
-                steps: List[str] = []
-                for step in path:
-                    if isinstance(step, Node):
-                        steps.append(step.name)
-                    elif isinstance(step, Connection):
-                        steps.append(f"{step.nodes[0].name}-{step.nodes[1].name}")
-                    elif step is None:
-                        steps.append("[None]")
-                print(
-                    f"Drone D{drone.id}:",
-                    "->".join(steps)
-                )
+            turns = simulation.get_turns(map, paths)
+            simulation.print_turns(turns)
+            print("Simulation complete in", len(turns), "turns")
+
         except PathNotFoundError as e:
             print("Failed to find solution")
             print_exception(e)
-            return 1
         return Visualiser(map).render()
+        return 0
 
 
 if __name__ == "__main__":
