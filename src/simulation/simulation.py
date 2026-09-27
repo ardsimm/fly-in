@@ -82,10 +82,6 @@ class Simulation:
         current = node_to
         while current and current != node_from:
             prev_node = prev_nodes.get(current)
-            if prev_node:
-                print(prev_node.name)
-            else:
-                print("[None]")
             if not prev_node:
                 raise PathNotFoundError(
                     f"No path found for node {node_to.name}"
@@ -241,25 +237,27 @@ class Simulation:
 
             paths[drone] = []
 
-            # print("------ Allocation table ------")
-            # for turn, turn_allocation_table in allocation_table.items():
-                # print(f"Turn {turn}:")
-                # for step, occupency in turn_allocation_table.items():
-                #     print(f"Node {step}: {occupency}")
+            print("------ Allocation table ------")
+            for turn, turn_allocation_table in allocation_table.items():
+                print(f"Turn {turn}:")
+                for step, occupency in turn_allocation_table.items():
+                    print(f"Node {step}: {occupency}")
 
-            # print("------ Previous nodes ------")
-            # for key, value in prev_nodes.items():
-            #     print(
-            #         f"{key[0]}, {key[1]}: {value[0]} (using {value[1]})",
-            #     )
+            print("------ Previous nodes ------")
+            for key, value in prev_nodes.items():
+                print(
+                    f"{key[0]}, {key[1]}: {value[0]} (using {value[1]})",
+                )
 
-            # print("------ Reconstructing path ------")
+            print("------ Reconstructing path ------")
             turn = end_turn
             current: Optional[Union[Node, Connection]] = map.exit_point
 
             while current:
 
                 paths[drone].append(current)
+
+                print(turn, current)
 
                 current, connection = prev_nodes.get((turn, current)) or (
                     None,

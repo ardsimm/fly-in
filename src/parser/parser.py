@@ -261,7 +261,6 @@ class Parser:
             hub_metadata = None
 
         if hub_metadata is not None:
-            print(hub_metadata)
             metadata = self.__parse_metadata(
                 line=hub_metadata, expected_fields=expected_metadata
             )
