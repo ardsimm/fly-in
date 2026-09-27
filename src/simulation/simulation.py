@@ -111,14 +111,11 @@ class Simulation:
             end_turn = 0
             insertion_idx = 1
 
-            print(f"=========== Computing D{drone.id} ===========")
             while not drone.done and queue:
 
                 turn, _, current, (
                     transit_connection, transit_destination
                 ) = heappop(queue)
-
-                print("Turn", turn, current, transit_connection, transit_destination)
 
                 next_turn_allocation_table = allocation_table.setdefault(
                     turn + 1, ({})
@@ -217,9 +214,7 @@ class Simulation:
                     assert transit_destination is not None
                     next_node = transit_destination
                     prev_nodes[(turn, next_node)] = (transit_connection, None)
-                    print("oeoe 1")
                     if transit_destination == map.exit_point:
-                        print("oeoe 2")
                         drone.done = True
                 if (
                     can_wait
@@ -242,27 +237,12 @@ class Simulation:
 
             paths[drone] = []
 
-            print("------ Allocation table ------")
-            for turn, turn_allocation_table in allocation_table.items():
-                print(f"Turn {turn}:")
-                for step, occupency in turn_allocation_table.items():
-                    print(f"Node {step}: {occupency}")
-
-            print("------ Previous nodes ------")
-            for key, value in prev_nodes.items():
-                print(
-                    f"{key[0]}, {key[1]}: {value[0]} (using {value[1]})",
-                )
-
-            print("------ Reconstructing path ------")
             turn = end_turn
             current: Optional[Union[Node, Connection]] = map.exit_point
 
             while current:
 
                 paths[drone].append(current)
-
-                print(turn, current)
 
                 current, connection = prev_nodes.get((turn, current)) or (
                     None,

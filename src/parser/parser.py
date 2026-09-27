@@ -179,7 +179,6 @@ class Parser:
     def __extract_max_drones(
         self, metadata: Dict[str, Union[str, int]]
     ) -> int:
-        print(metadata)
         max_drones = metadata.get("max_drones") or 1
         assert isinstance(max_drones, int)
         if max_drones < 0:

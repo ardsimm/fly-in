@@ -1,6 +1,5 @@
 import sys
 from traceback import print_exception
-from typing import List
 
 from src.models.connection import Connection
 from src.models.node import Node
@@ -24,30 +23,25 @@ class Main:
             with open(map_path) as file:
                 map_content = file.read()
         except OSError as e:
-            print(f"Failed to read map file: {e}")
+            print(f"Failed to read map file: {e}", file=sys.stderr)
             return 1
         parser = Parser()
-        print("Parsing map...")
         try:
             map = parser.parse(map_content)
         except ParsingError as e:
             print(e, file=sys.stderr)
             return 1
         assert map is not None
-        print("Successfuly parsed map, checking if it is solvable...")
         simulation = Simulation()
         try:
             simulation.check_solvable(map)
         except PathNotFoundError:
             print("Error: map is not solvable", file=sys.stderr)
             return 1
-        print("Map is solvable ! solving map...")
-        print("Solution:")
         try:
             paths = simulation.cooperative_bfs(map)
             turns = simulation.get_turns(map, paths)
             simulation.print_turns(turns)
-            print("Simulation complete in", len(turns), "turns")
 
         except PathNotFoundError as e:
             print("Failed to find solution")

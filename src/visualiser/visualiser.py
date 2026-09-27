@@ -3,6 +3,8 @@ from math import floor
 from traceback import print_exception
 from typing import List, Optional
 
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 
 from src.models import Map
