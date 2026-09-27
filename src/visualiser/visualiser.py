@@ -1,9 +1,9 @@
+import os
 import sys
 from math import floor
 from traceback import print_exception
 from typing import List, Optional
 
-import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 
@@ -116,35 +116,28 @@ class Visualiser:
         self.__init_elements()
         combined_dt: int = 0
         dt: int = 0
-        try:
-            while running:
+        while running:
 
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT or (
-                        event.type == pygame.KEYUP and event.key == pygame.K_q
-                    ):
-                        running = False
-                    elif event.type == pygame.MOUSEMOTION:
-                        self.mouse_manager.cursor_position = (
-                            pygame.mouse.get_pos()
-                        )
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT or (
+                    event.type == pygame.KEYUP and event.key == pygame.K_q
+                ):
+                    running = False
+                elif event.type == pygame.MOUSEMOTION:
+                    self.mouse_manager.cursor_position = (
+                        pygame.mouse.get_pos()
+                    )
 
-                _ = self.screen.fill((39, 43, 48))
+            _ = self.screen.fill((39, 43, 48))
 
-                self.__draw_elements()
+            self.__draw_elements()
 
-                pygame.display.flip()
+            pygame.display.flip()
 
-                self.__update_elements(dt, combined_dt)
+            self.__update_elements(dt, combined_dt)
 
-                dt = clock.tick(self.target_fps)
-                combined_dt += dt
-
-        except BaseException as e:
-            print(f"An unhandled excetion occured:\n{e}", file=sys.stderr)
-            print_exception(e)
-            pygame.quit()
-            return 1
+            dt = clock.tick(self.target_fps)
+            combined_dt += dt
 
         pygame.quit()
         return 0
