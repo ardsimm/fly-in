@@ -67,6 +67,7 @@ class Simulation:
                     current, current.connections
                 )
                 if next_node not in visited
+                and next_node.priority != NodePriority.blocked.value
             ]
             if not len(next_nodes):
                 continue
@@ -167,6 +168,7 @@ class Simulation:
                         all_visited &= next_node in visited
                         if (
                             next_node in visited
+                            or next_node.priority == NodePriority.blocked.value
                             or connection_occupency >= connection_capacity
                             or next_node_occupency >= next_node_capacity
                         ):
