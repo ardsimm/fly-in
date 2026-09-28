@@ -45,15 +45,22 @@ class NodeElement(Element):
 
     def update_hovered(self, mouse_pos: Tuple[int, int]) -> None:
         mouse_x, mouse_y = mouse_pos
+        padding_x, padding_y = CoordinateManager.get_paddings(
+            max_x=self.max_x,
+            max_y=self.max_y,
+            node_bounding_rect_size=self.node_bounding_rect_size,
+            window_height=self.screen.height,
+            window_width=self.screen.width
+        )
         top_left = (
-            self.node.x * self.node_bounding_rect_size,
-            self.node.y * self.node_bounding_rect_size,
+            self.node.x * self.node_bounding_rect_size + padding_x,
+            self.node.y * self.node_bounding_rect_size + padding_y,
         )
         bottom_right = (
             self.node.x * self.node_bounding_rect_size
-            + self.node_bounding_rect_size,
+            + self.node_bounding_rect_size + padding_x,
             self.node.y * self.node_bounding_rect_size
-            + self.node_bounding_rect_size,
+            + self.node_bounding_rect_size + padding_y,
         )
 
         self.hovered = (
@@ -101,7 +108,7 @@ class NodeElement(Element):
 
         if self.hovered:
             label_font_render = font.render(
-                self.node.name, True, "white", None
+                self.node.name, True, "white", "black"
             )
             label_rect = label_font_render.get_rect()
             label_rect.center = (circle_x, circle_y + self.node_radius * 2)
