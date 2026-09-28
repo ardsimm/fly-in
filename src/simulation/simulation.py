@@ -1,9 +1,6 @@
-from bisect import insort
 from collections import deque
 from heapq import heappop, heappush
 from typing import Dict, List, Optional, Set, Tuple, Union
-
-from numpy import isin
 
 from src.enums.node_priority import NodePriority
 from src.models.connection import Connection
@@ -344,8 +341,11 @@ class Simulation:
                         > current_step_capacity
                     ):
                         raise InvalidMoveError(f"invalid move D{
-                                drone.id}:{current_step
-                            }: exceeds capacity")
+                                drone.id
+                        }:{
+                            current_step
+                        }: exceeds capacity"
+                        )
 
                     if isinstance(current_step, Node):
                         if (
@@ -355,23 +355,29 @@ class Simulation:
                         ):
                             raise InvalidMoveError(
                                 f"Invalid move D{
-                                drone.id}:{current_step
-                            }: node is restricted and previous"
+                                    drone.id
+                                }:{
+                                    current_step
+                                }: node is restricted and previous"
                                 + " step wasn't a connection"
                             )
-                        if (
-                            current_step.priority == NodePriority.blocked.value
-                        ):
-                            raise InvalidMoveError(f"Invalid move D{
-                                    drone.id}:{current_step
-                                }: node is blocked")
+                        if current_step.priority == NodePriority.blocked.value:
+                            raise InvalidMoveError(
+                                f"Invalid move D{
+                                    drone.id
+                                }:{
+                                    current_step
+                                }: node is blocked"
+                            )
                     else:
-                        if isinstance(
-                            previous_step, Connection
-                        ):
-                            raise InvalidMoveError(f"Invalid move D{
-                                drone.id}:{current_step
-                            }: waiting on a connection")
+                        if isinstance(previous_step, Connection):
+                            raise InvalidMoveError(
+                                f"Invalid move D{
+                                    drone.id
+                                }:{
+                                    current_step
+                                }: waiting on a connection"
+                            )
 
                     turn.append((drone, path[i]))
             turns.append(turn)

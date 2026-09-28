@@ -45,9 +45,7 @@ class DroneElement(Element):
         self.last_move_dt = 0
         if len(self.drone.path):
             first_step = self.drone.path[self.current_turn]
-            assert isinstance(
-                first_step, Node
-            )
+            assert isinstance(first_step, Node)
             self.__current_pos = pygame.Vector2(
                 first_step.x,
                 first_step.y,

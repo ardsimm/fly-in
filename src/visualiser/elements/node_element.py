@@ -50,7 +50,7 @@ class NodeElement(Element):
             max_y=self.max_y,
             node_bounding_rect_size=self.node_bounding_rect_size,
             window_height=self.screen.height,
-            window_width=self.screen.width
+            window_width=self.screen.width,
         )
         top_left = (
             self.node.x * self.node_bounding_rect_size + padding_x,
@@ -58,9 +58,11 @@ class NodeElement(Element):
         )
         bottom_right = (
             self.node.x * self.node_bounding_rect_size
-            + self.node_bounding_rect_size + padding_x,
+            + self.node_bounding_rect_size
+            + padding_x,
             self.node.y * self.node_bounding_rect_size
-            + self.node_bounding_rect_size + padding_y,
+            + self.node_bounding_rect_size
+            + padding_y,
         )
 
         self.hovered = (

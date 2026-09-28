@@ -1,5 +1,4 @@
 from enum import StrEnum
-from re import L
 from typing import Dict, List, Optional, Tuple, Union
 
 from typing_extensions import TypedDict
@@ -121,7 +120,7 @@ class Parser:
             field_occurence = field_occurences.setdefault(field_name, 0)
             if field_occurence > 0:
                 raise ParsingError(
-                    f"Error in line \"{line}\":\n"
+                    f'Error in line "{line}":\n'
                     + f"Duplicated metadata field {field_name}"
                 )
             field_occurences[field_name] += 1
@@ -132,7 +131,8 @@ class Parser:
                         for field in expected_fields
                         if field.get("name") == field_name
                     ]
-                ), None
+                ),
+                None,
             )
             if expected_field is None:
                 raise ParsingError(
@@ -222,7 +222,8 @@ class Parser:
             parsed_value = int(value)
         except ValueError:
             raise ParsingError(
-                "Parsing error: invalid value: " + f"{value}"
+                "Parsing error: invalid value: "
+                + f"{value}"
                 + " for hub coordinate"
             )
         return parsed_value
@@ -437,10 +438,11 @@ class Parser:
         if hub1_name == hub2_name:
             raise ParsingError(
                 f"This implementation does not accept self-loops ({
-                    hub1_name}-{hub2_name
+                    hub1_name
+                }-{
+                    hub2_name
                 })"
             )
-
 
         if len(splitted_line) > 2:
             metadata_string = splitted_line[2]
@@ -586,7 +588,7 @@ class Parser:
                         connections.append(connection)
                     else:
                         raise ParsingError(
-                            f"Error in line \"{line}\":\n"
+                            f'Error in line "{line}":\n'
                             + f"Invalid line prefix \"f{
                                 line[:line.index(':')]
                             }\""

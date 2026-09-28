@@ -49,7 +49,6 @@ class Main:
             print("Failed to find solution")
             print_exception(e)
         return Visualiser(map).render()
-        return 0
 
 
 if __name__ == "__main__":
