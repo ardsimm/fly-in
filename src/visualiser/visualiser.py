@@ -27,10 +27,12 @@ class Visualiser:
     def __compute_node_bounding_rect(self) -> int:
         max_x = max(self.map.nodes, key=lambda node: node.x).x
         max_y = max(self.map.nodes, key=lambda node: node.y).y
-        max_coord = max(max_x, max_y)
-        return floor(
-            min(self.window_width, self.window_height) / (max_coord + 1)
-        )
+        width = self.window_width / (max_x + 1)
+        height = self.window_height / (max_y + 1)
+        if width < height:
+            return floor(self.window_width / (max_x + 1))
+        else:
+            return floor(self.window_height / (max_y + 1))
 
     def __init__(
         self,
