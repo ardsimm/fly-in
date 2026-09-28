@@ -1,4 +1,5 @@
 from enum import StrEnum
+from re import L
 from typing import Dict, List, Optional, Tuple, Union
 
 from typing_extensions import TypedDict
@@ -110,12 +111,20 @@ class Parser:
         line = self.__strip_metadata_line(line)
         splitted_fields = self.__split_metadata_fields(line, expected_fields)
         metadata_dict: Dict[str, Union[str, int]] = {}
+        field_occurences: Dict[str, int] = {}
         for field in splitted_fields:
             expected_field_names = [
                 field.get("name") for field in expected_fields
             ]
             field_name = field[0]
             field_value = field[1]
+            field_occurence = field_occurences.setdefault(field_name, 0)
+            if field_occurence > 0:
+                raise ParsingError(
+                    f"Error in line \"{line}\":\n"
+                    + f"Duplicated metadata field {field_name}"
+                )
+            field_occurences[field_name] += 1
             expected_field = next(
                 iter(
                     [
@@ -123,7 +132,7 @@ class Parser:
                         for field in expected_fields
                         if field.get("name") == field_name
                     ]
-                )
+                ), None
             )
             if expected_field is None:
                 raise ParsingError(
@@ -162,7 +171,7 @@ class Parser:
         allowed_values: Optional[List[str]] = None,
     ) -> str:
         if allowed_values is None:
-            allowed_values = ["normal", "restricted", "priority"]
+            allowed_values = ["normal", "restricted", "priority", "blocked"]
         zone = metadata.get("zone") or "normal"
         if zone not in allowed_values:
             raise ParsingError(
@@ -179,12 +188,14 @@ class Parser:
     def __extract_max_drones(
         self, metadata: Dict[str, Union[str, int]]
     ) -> int:
-        max_drones = metadata.get("max_drones") or 1
+        max_drones = metadata.get("max_drones")
+        if max_drones is None:
+            max_drones = 1
         assert isinstance(max_drones, int)
-        if max_drones < 0:
+        if max_drones < 1:
             raise ParsingError(
                 f"Invalid max drones {max_drones}:"
-                + "max_drones must be a positive integer"
+                + "max_drones must be am integer >= 1"
             )
         return max_drones
 
@@ -211,7 +222,8 @@ class Parser:
             parsed_value = int(value)
         except ValueError:
             raise ParsingError(
-                "Parsing error: invalid value: " + f"{value}" + " for hub y"
+                "Parsing error: invalid value: " + f"{value}"
+                + " for hub coordinate"
             )
         return parsed_value
 
@@ -291,10 +303,10 @@ class Parser:
             )
         try:
             n = int(splitted_line[1])
-            if n < 0:
+            if n < 1:
                 raise ParsingError(
                     f'Error in line "{line}":\n'
-                    + "nb_drones must be a positive integer"
+                    + "nb_drones must be an integer >= 1"
                 )
             return n
         except ValueError as e:
@@ -405,7 +417,9 @@ class Parser:
     def __extract_max_link_capacity(
         self, metadata: Dict[str, Union[str, int]]
     ) -> int:
-        max_link_capacity = metadata.get("max_link_capacity") or 1
+        max_link_capacity = metadata.get("max_link_capacity")
+        if max_link_capacity is None:
+            max_link_capacity = 1
         assert isinstance(max_link_capacity, int)
         if max_link_capacity < 1:
             raise ParsingError("Parsing error: link must have a capacity >= 1")
@@ -419,6 +433,14 @@ class Parser:
         hub1_name, hub2_name = self.__extract_hub_names(
             splitted_line=splitted_line, available_hubs=available_hubs
         )
+
+        if hub1_name == hub2_name:
+            raise ParsingError(
+                f"This implementation does not accept self-loops ({
+                    hub1_name}-{hub2_name
+                })"
+            )
+
 
         if len(splitted_line) > 2:
             metadata_string = splitted_line[2]
@@ -461,14 +483,6 @@ class Parser:
             raise ParsingError("File misses a nb_drones line")
         if len(filtered) > 1:
             raise ParsingError("File has > 1 nb_drones lines")
-        return filtered[0]
-
-    def __get_start_hub_line(self, lines: List[str]) -> str:
-        filtered = self.__filter_lines(lines, "start_hub: ")
-        if len(filtered) < 1:
-            raise ParsingError("File misses a start_hub line")
-        if len(filtered) > 1:
-            raise ParsingError("File has > 1 start_hub lines")
         return filtered[0]
 
     def __strip_line(self, line: str) -> str:
@@ -524,6 +538,12 @@ class Parser:
                             )
                         entry_point = self.__parse_start_hub(line)
                         nodes.append(entry_point)
+                        if entry_point.name in node_names:
+                            raise ParsingError(
+                                f'Error in line: "{line}":\n'
+                                + f"duplicated node name {entry_point.name}"
+                            )
+                        node_names.append(entry_point.name)
                     elif line.startswith("end_hub: "):
                         if exit_point is not None:
                             raise ParsingError(
@@ -531,6 +551,12 @@ class Parser:
                             )
                         exit_point = self.__parse_end_hub(line)
                         nodes.append(exit_point)
+                        if exit_point.name in node_names:
+                            raise ParsingError(
+                                f'Error in line: "{line}":\n'
+                                + f"duplicated node name {exit_point.name}"
+                            )
+                        node_names.append(exit_point.name)
                     elif line.startswith("hub: "):
                         node = self.__parse_hub(line=line)
                         nodes.append(node)
@@ -542,10 +568,6 @@ class Parser:
                         node_names.append(node.name)
                     elif line.startswith("connection: "):
                         known_nodes = list(nodes)
-                        if entry_point is not None:
-                            known_nodes.append(entry_point)
-                        if exit_point is not None:
-                            known_nodes.append(exit_point)
                         connection = self.__parse_connection(line, known_nodes)
                         names = [node.name for node in connection.nodes]
                         for known_connection in connections:
@@ -562,6 +584,13 @@ class Parser:
                         for node in connection.nodes:
                             node.connections.append(connection)
                         connections.append(connection)
+                    else:
+                        raise ParsingError(
+                            f"Error in line \"{line}\":\n"
+                            + f"Invalid line prefix \"f{
+                                line[:line.index(':')]
+                            }\""
+                        )
                 except ParsingError:
                     raise
                 except Exception as e:  # noqa: BLE001
