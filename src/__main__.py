@@ -3,6 +3,7 @@ from traceback import print_exception
 
 from src.parser import Parser, ParsingError
 from src.simulation import PathNotFoundError, Simulation
+from src.simulation.simulation_exceptions import InvalidMoveError
 from src.visualiser import Visualiser
 
 
@@ -35,6 +36,9 @@ class Main:
             simulation.check_solvable(map)
         except PathNotFoundError:
             print("Error: map is not solvable", file=sys.stderr)
+            return 1
+        except InvalidMoveError as e:
+            print(e)
             return 1
         try:
             paths = simulation.cooperative_bfs(map)

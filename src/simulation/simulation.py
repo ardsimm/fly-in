@@ -1,6 +1,9 @@
+from bisect import insort
 from collections import deque
 from heapq import heappop, heappush
 from typing import Dict, List, Optional, Set, Tuple, Union
+
+from numpy import isin
 
 from src.enums.node_priority import NodePriority
 from src.models.connection import Connection
@@ -8,6 +11,7 @@ from src.models.drone import Drone
 from src.models.map import Map
 from src.models.node import Node
 from src.simulation.simulation_exceptions import (
+    InvalidMoveError,
     PathNotFoundError,
 )
 
@@ -302,13 +306,73 @@ class Simulation:
     def get_turns(
         self, map: Map, paths: Dict[Drone, List[Union[Node, Connection]]]
     ) -> List[List[Tuple[Drone, Union[Connection, Node]]]]:
+        occupency_table: Dict[Union[Node, Connection], int] = {}
+
         turns: List[List[Tuple[Drone, Union[Connection, Node]]]] = []
         max_path_len = max([len(path) for path in paths.values()])
 
         for i in range(max_path_len):
             turn: List[Tuple[Drone, Union[Connection, Node]]] = []
             for drone, path in paths.items():
-                if len(path) > i and (i == 0 or path[i] != path[i - 1]):
+
+                if i >= len(path):
+                    continue
+
+                current_step = path[i]
+                previous_step: Optional[Union[Node, Connection]] = None
+
+                if i > 0:
+                    previous_step = path[i - 1]
+
+                if previous_step != current_step:
+
+                    if previous_step:
+                        occupency_table[previous_step] -= 1
+                    _ = occupency_table.setdefault(current_step, 0)
+
+                    occupency_table[current_step] += 1
+                    current_step_capacity = 0
+
+                    if isinstance(current_step, Node):
+                        current_step_capacity = current_step.max_drones
+                    else:
+                        current_step_capacity = current_step.capacity
+
+                    if (
+                        current_step not in [map.entry_point, map.exit_point]
+                        and occupency_table[current_step]
+                        > current_step_capacity
+                    ):
+                        raise InvalidMoveError(f"invalid move D{
+                                drone.id}:{current_step
+                            }: exceeds capacity")
+
+                    if isinstance(current_step, Node):
+                        if (
+                            current_step.priority
+                            == NodePriority.restricted.value
+                            and not isinstance(previous_step, Connection)
+                        ):
+                            raise InvalidMoveError(
+                                f"Invalid move D{
+                                drone.id}:{current_step
+                            }: node is restricted and previous"
+                                + " step wasn't a connection"
+                            )
+                        if (
+                            current_step.priority == NodePriority.blocked.value
+                        ):
+                            raise InvalidMoveError(f"Invalid move D{
+                                    drone.id}:{current_step
+                                }: node is blocked")
+                    else:
+                        if isinstance(
+                            previous_step, Connection
+                        ):
+                            raise InvalidMoveError(f"Invalid move D{
+                                drone.id}:{current_step
+                            }: waiting on a connection")
+
                     turn.append((drone, path[i]))
             turns.append(turn)
         return turns
