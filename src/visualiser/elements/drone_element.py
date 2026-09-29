@@ -6,7 +6,7 @@ from pygame.math import smoothstep
 from typing_extensions import final, override
 
 from src.models.drone import Drone
-from src.models.node import Node
+from src.models.map import Map
 from src.visualiser.elements.element import Element
 from src.visualiser.managers.coordinate_manager import CoordinateManager
 
@@ -14,13 +14,13 @@ from src.visualiser.managers.coordinate_manager import CoordinateManager
 @final
 class DroneElement(Element):
 
+    map: Map
     screen: pygame.Surface
     drone: Drone
     max_x: int
     max_y: int
     node_bounding_rect_size: int
     current_turn: int
-    path_len: int
     __current_pos: pygame.Vector2
     __next_pos: pygame.Vector2
     animation_time: float
@@ -28,6 +28,7 @@ class DroneElement(Element):
 
     def __init__(
         self,
+        map: Map,
         screen: pygame.Surface,
         drone: Drone,
         max_x: int,
@@ -42,22 +43,17 @@ class DroneElement(Element):
         self.max_y = max_y
         self.node_bounding_rect_size = node_bounding_rect_size
         self.current_turn = 0
-        self.path_len = len(self.drone.path)
         self.last_move_dt = 0
-        if len(self.drone.path):
-            first_step = self.drone.path[self.current_turn]
-            assert isinstance(first_step, Node)
-            self.__current_pos = pygame.Vector2(
-                first_step.x,
-                first_step.y,
-            )
-            self.__next_pos = pygame.Vector2(
-                first_step.x,
-                first_step.y,
-            )
-        else:
-            self.__current_pos = pygame.Vector2(0, 0)
-            self.__next_pos = pygame.Vector2(0, 0)
+        self.map = map
+        first_step = self.map.entry_point
+        self.__current_pos = pygame.Vector2(
+            first_step.x,
+            first_step.y,
+        )
+        self.__next_pos = pygame.Vector2(
+            first_step.x,
+            first_step.y,
+        )
         self.animation_time = 0
         self.animation_duration = 500
 
@@ -78,9 +74,6 @@ class DroneElement(Element):
 
     @override
     def draw(self) -> None:
-
-        if self.path_len == 0:
-            return
 
         padding_x = 0
         padding_y = 0

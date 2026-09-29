@@ -110,6 +110,7 @@ class Visualiser:
 
         for drone in self.map.drones:
             self.drones[drone] = DroneElement(
+                map=self.map,
                 drone=drone,
                 max_x=max_x,
                 max_y=max_y,
@@ -154,7 +155,7 @@ class Visualiser:
         for drone_element in self.drones.values():
             drone_element.move_to(
                 target=pygame.Vector2(
-                    self.__get_animation_target(drone_element.drone.path[0])
+                    self.__get_animation_target(self.map.entry_point)
                 ),
                 duration=1,
             )

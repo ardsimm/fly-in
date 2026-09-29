@@ -130,15 +130,6 @@ class Simulation:
                 can_wait = False
                 all_visited = True
                 if current:
-                    current.connections.sort(
-                        key=lambda connection: -next(
-                            iter(
-                                connected_node
-                                for connected_node in connection.nodes
-                                if connected_node != current
-                            )
-                        ).priority
-                    )
 
                     for connection in current.connections:
 
@@ -296,7 +287,6 @@ class Simulation:
                 turn -= 1
 
             paths[drone].reverse()
-            drone.path = paths[drone]
 
         return paths
 
