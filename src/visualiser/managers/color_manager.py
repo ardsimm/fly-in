@@ -1,6 +1,6 @@
 import json
 import sys
-from typing import Dict, Optional, Union
+from typing import Dict, Optional
 
 import pygame
 

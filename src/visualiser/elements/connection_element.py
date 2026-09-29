@@ -3,10 +3,8 @@ from math import floor
 import pygame
 from typing_extensions import final, override
 
-from src.enums.node_priority import NodePriority
 from src.models.connection import Connection
 from src.visualiser.elements.element import Element
-from src.visualiser.managers.color_manager import ColorManager
 from src.visualiser.managers.coordinate_manager import CoordinateManager
 
 
