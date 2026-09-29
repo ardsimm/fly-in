@@ -533,14 +533,14 @@ class Parser:
             if len(lines) == 0:
                 raise ParsingError("Empty map file")
             if not lines[0].startswith("nb_drones:"):
-                if not lines[0].startswith("nb_drones: "):
-                    raise ParsingError(
-                        f'Error in line: "{lines[0]}":\n'
-                        + "Missing space after \"nb_drones:\""
-                    )
                 raise ParsingError(
                     f'Error in line "{lines[0]}":\n'
                     + "First line must be nb_drones"
+                )
+            if not lines[0].startswith("nb_drones: "):
+                raise ParsingError(
+                    f'Error in line: "{lines[0]}":\n'
+                    + "Missing space after \"nb_drones:\""
                 )
             nb_drones = self.__parse_nb_drones(
                 self.__get_nb_drones_line(lines)
