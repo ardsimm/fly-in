@@ -565,12 +565,10 @@ class Parser:
                         entry_point = self.__parse_start_hub(line)
                         if (
                             entry_point.priority == NodePriority.blocked.value
-                            or entry_point.priority
-                            == NodePriority.restricted.value
                         ):
                             raise ParsingError(
                                 f"Error in line: \"{line}\":\n"
-                                + "start_hub cannot be blocked or restricted"
+                                + "start_hub cannot be blocked"
                             )
                         nodes.append(entry_point)
                         if entry_point.name in node_names:
