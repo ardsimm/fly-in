@@ -389,9 +389,7 @@ class Simulation:
         self, turns: List[List[Tuple[Drone, Union[Connection, Node]]]]
     ) -> None:
         for turn in turns[1:]:
-            for drone, step in turn:
-                print(drone, step, sep="-", end="")
-            print()
+            print(" ".join(f"{drone}-{step}" for drone, step in turn))
 
     def check_solvable(self, map: Map) -> None:
         _ = self.bfs(map.entry_point, map.exit_point)
