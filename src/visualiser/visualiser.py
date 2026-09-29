@@ -37,9 +37,9 @@ class Visualiser:
         width = self.window_width / (max_x + 1)
         height = self.window_height / (max_y + 1)
         if width < height:
-            return floor(self.window_width / (max_x + 1))
+            return max(floor(self.window_width / (max_x + 1)), 1)
         else:
-            return floor(self.window_height / (max_y + 1))
+            return max(floor(self.window_height / (max_y + 1)), 1)
 
     def __init__(
         self,
