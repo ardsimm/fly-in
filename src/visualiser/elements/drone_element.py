@@ -1,4 +1,5 @@
 from math import floor
+from typing import Tuple
 
 import pygame
 from pygame.math import smoothstep
@@ -61,6 +62,10 @@ class DroneElement(Element):
         self.animation_duration = 500
 
     @property
+    def current_pos(self) -> Tuple[float, float]:
+        return (self.__current_pos.x, self.__current_pos.y)
+
+    @property
     def pos(self) -> pygame.Vector2:
         return pygame.Vector2(
             smoothstep(
@@ -108,29 +113,12 @@ class DroneElement(Element):
             drone_radius - 2,
         )
 
-    def move_to(self, target: pygame.Vector2) -> None:
+    def move_to(self, target: pygame.Vector2, duration: int) -> None:
         self.__current_pos = self.pos
         self.__next_pos = target
         self.animation_time = 0.0
+        self.animation_duration = duration
 
     @override
     def update(self, dt: int, combined_dt: int) -> None:
-        if self.animation_time >= 1:
-            self.current_turn += 1
-            if self.current_turn < len(self.drone.path):
-                target = self.drone.path[self.current_turn]
-                target_x: float
-                target_y: float
-                if isinstance(target, Node):
-                    target_x = target.x
-                    target_y = target.y
-                else:
-                    target_x = (target.nodes[0].x + target.nodes[1].x) / 2
-                    target_y = (target.nodes[0].y + target.nodes[1].y) / 2
-                self.move_to(
-                    target=pygame.Vector2(
-                        target_x,
-                        target_y,
-                    )
-                )
         self.animation_time += dt / self.animation_duration

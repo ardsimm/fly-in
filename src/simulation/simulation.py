@@ -300,6 +300,23 @@ class Simulation:
 
         return paths
 
+    def get_turns_with_waits(
+        self, paths: Dict[Drone, List[Union[Node, Connection]]]
+    ) -> List[List[Tuple[Drone, Union[Connection, Node]]]]:
+        turns: List[List[Tuple[Drone, Union[Connection, Node]]]] = []
+        max_path_len = max([len(path) for path in paths.values()])
+
+        for i in range(max_path_len):
+            turn: List[Tuple[Drone, Union[Connection, Node]]] = []
+            for drone, path in paths.items():
+
+                if i >= len(path):
+                    continue
+
+                turn.append((drone, path[i]))
+            turns.append(turn)
+        return turns
+
     def get_turns(
         self, map: Map, paths: Dict[Drone, List[Union[Node, Connection]]]
     ) -> List[List[Tuple[Drone, Union[Connection, Node]]]]:
@@ -344,8 +361,7 @@ class Simulation:
                                 drone.id
                         }:{
                             current_step
-                        }: exceeds capacity"
-                        )
+                        }: exceeds capacity")
 
                     if isinstance(current_step, Node):
                         if (
@@ -362,22 +378,18 @@ class Simulation:
                                 + " step wasn't a connection"
                             )
                         if current_step.priority == NodePriority.blocked.value:
-                            raise InvalidMoveError(
-                                f"Invalid move D{
+                            raise InvalidMoveError(f"Invalid move D{
                                     drone.id
                                 }:{
                                     current_step
-                                }: node is blocked"
-                            )
+                                }: node is blocked")
                     else:
                         if isinstance(previous_step, Connection):
-                            raise InvalidMoveError(
-                                f"Invalid move D{
+                            raise InvalidMoveError(f"Invalid move D{
                                     drone.id
                                 }:{
                                     current_step
-                                }: waiting on a connection"
-                            )
+                                }: waiting on a connection")
 
                     turn.append((drone, path[i]))
             turns.append(turn)

@@ -1,6 +1,10 @@
 import sys
 from traceback import print_exception
+from typing import Dict, List, Tuple, Union
 
+from src.models.connection import Connection
+from src.models.drone import Drone
+from src.models.node import Node
 from src.parser import Parser, ParsingError
 from src.simulation import PathNotFoundError, Simulation
 from src.simulation.simulation_exceptions import InvalidMoveError
@@ -40,6 +44,8 @@ class Main:
         except InvalidMoveError as e:
             print(e)
             return 1
+        turns: List[List[Tuple[Drone, Union[Connection, Node]]]] = []
+        paths: Dict[Drone, List[Union[Node, Connection]]] = {}
         try:
             paths = simulation.cooperative_bfs(map)
             turns = simulation.get_turns(map, paths)
@@ -48,7 +54,8 @@ class Main:
         except PathNotFoundError as e:
             print("Failed to find solution")
             print_exception(e)
-        return Visualiser(map).render()
+
+        return Visualiser(map, simulation.get_turns_with_waits(paths)).render()
 
 
 if __name__ == "__main__":

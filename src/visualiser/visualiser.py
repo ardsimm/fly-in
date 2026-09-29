@@ -1,9 +1,11 @@
 from math import floor
-from typing import List, Optional
+from typing import Dict, List, Optional, Tuple, Union
 
 import pygame
+from typing_extensions import Literal
 
-from src.models import Map
+from src.models import Connection, Drone, Map
+from src.models.node import Node
 from src.visualiser.color_palette import ColorPaletteTypedDict
 from src.visualiser.elements.connection_element import ConnectionElement
 from src.visualiser.elements.drone_element import DroneElement
@@ -22,7 +24,12 @@ class Visualiser:
     node_bounding_rect_size: int
     target_fps: int
     elements: List[Element]
+    drones: Dict[Drone, DroneElement]
     mouse_manager: MouseManager
+    current_turn: int
+    turns: List[List[Tuple[Drone, Union[Connection, Node]]]]
+    auto_move: bool
+    auto_move_delay: int
 
     def __compute_node_bounding_rect(self) -> int:
         max_x = max(self.map.nodes, key=lambda node: node.x).x
@@ -37,6 +44,7 @@ class Visualiser:
     def __init__(
         self,
         map: Map,
+        turns: List[List[Tuple[Drone, Union[Connection, Node]]]],
         color_palette: ColorPaletteTypedDict = {},
         window_width: Optional[int] = None,
         window_height: Optional[int] = None,
@@ -60,6 +68,11 @@ class Visualiser:
         self.elements = []
         pygame.display.set_caption("fly-in")
         self.mouse_manager = MouseManager.get_instance()
+        self.current_turn = 0
+        self.drones = {}
+        self.turns = turns
+        self.auto_move = False
+        self.auto_move_delay = 500
 
     def __update_elements(self, dt: int, combined_dt: int) -> None:
         for element in self.elements:
@@ -96,17 +109,56 @@ class Visualiser:
             )
 
         for drone in self.map.drones:
-            self.elements.append(
-                DroneElement(
-                    drone=drone,
-                    screen=self.screen,
-                    max_x=max_x,
-                    max_y=max_y,
-                    node_bounding_rect_size=self.node_bounding_rect_size,
-                )
+            self.drones[drone] = DroneElement(
+                drone=drone,
+                max_x=max_x,
+                max_y=max_y,
+                node_bounding_rect_size=self.node_bounding_rect_size,
+                screen=self.screen,
             )
 
+        self.elements += self.drones.values()
+
         self.elements.sort(key=lambda el: el.z_index)
+
+    def __get_animation_target(
+        self, step: Union[Connection, Node]
+    ) -> Tuple[float, float]:
+        if isinstance(step, Node):
+            return (step.x, step.y)
+        else:
+            return (
+                (step.nodes[0].x + step.nodes[1].x) / 2,
+                (step.nodes[0].y + step.nodes[1].y) / 2,
+            )
+
+    def progress_turn(self, direction: Literal[-1, 1]) -> None:
+        next_turn = self.current_turn + direction
+        if next_turn >= 0 and next_turn < len(self.turns):
+            self.current_turn = next_turn
+            current_turn = self.turns[self.current_turn]
+            for drone_turn in current_turn:
+                drone, current_step = drone_turn
+                drone_element = self.drones[drone]
+
+                target = self.__get_animation_target(current_step)
+
+                drone_element.move_to(
+                    target=pygame.Vector2(target),
+                    duration=self.auto_move_delay,
+                )
+
+    def reset_turns(self) -> None:
+        self.auto_move = False
+        self.current_turn = 0
+        for drone_element in self.drones.values():
+            drone_element.move_to(
+                target=pygame.Vector2(
+                    self.__get_animation_target(drone_element.drone.path[0])
+                ),
+                duration=1,
+            )
+        self.auto_move_delay = 500
 
     def render(self) -> int:
         clock = pygame.time.Clock()
@@ -114,6 +166,7 @@ class Visualiser:
         self.__init_elements()
         combined_dt: int = 0
         dt: int = 0
+        last_auto_move_dt: int = 0
         while running:
 
             for event in pygame.event.get():
@@ -121,6 +174,31 @@ class Visualiser:
                     event.type == pygame.KEYUP and event.key == pygame.K_q
                 ):
                     running = False
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_RIGHT:
+                        self.progress_turn(1)
+                    elif event.key == pygame.K_LEFT:
+                        self.progress_turn(-1)
+                    elif event.key == pygame.K_UP:
+                        self.auto_move_delay = max(
+                            self.auto_move_delay - 50, 1
+                        )
+                        for drone_element in self.drones.values():
+                            drone_element.animation_duration = (
+                                self.auto_move_delay
+                            )
+                    elif event.key == pygame.K_DOWN:
+                        self.auto_move_delay = max(
+                            self.auto_move_delay + 50, 1
+                        )
+                        for drone_element in self.drones.values():
+                            drone_element.animation_duration = (
+                                self.auto_move_delay
+                            )
+                    elif event.key == pygame.K_r:
+                        self.reset_turns()
+                    elif event.key == pygame.K_SPACE:
+                        self.auto_move = not self.auto_move
                 elif event.type == pygame.MOUSEMOTION:
                     self.mouse_manager.cursor_position = pygame.mouse.get_pos()
 
@@ -131,6 +209,14 @@ class Visualiser:
             pygame.display.flip()
 
             self.__update_elements(dt, combined_dt)
+
+            if (
+                self.auto_move
+                and combined_dt > 0
+                and combined_dt - last_auto_move_dt >= self.auto_move_delay
+            ):
+                last_auto_move_dt = combined_dt
+                self.progress_turn(1)
 
             dt = clock.tick(self.target_fps)
             combined_dt += dt
