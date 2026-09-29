@@ -1,3 +1,4 @@
+import os
 import sys
 from traceback import print_exception
 from typing import Dict, List, Tuple, Union
@@ -8,7 +9,6 @@ from src.models.node import Node
 from src.parser import Parser, ParsingError
 from src.simulation import PathNotFoundError, Simulation
 from src.simulation.simulation_exceptions import InvalidMoveError
-from src.visualiser import Visualiser
 
 
 class Main:
@@ -52,14 +52,17 @@ class Main:
             simulation.print_turns(turns)
 
         except PathNotFoundError as e:
-            print("Failed to find solution")
+            print("Failed to find solution", file=sys.stderr)
             print_exception(e)
 
+        from src.visualiser import Visualiser
         return Visualiser(map, simulation.get_turns_with_waits(paths)).render()
 
 
 if __name__ == "__main__":
     try:
+        # Disable pygame banner
+        os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
         sys.exit(Main.main(len(sys.argv), sys.argv))
     except Exception as e:  # noqa: BLE001
         print("An unhandled exception occured:", file=sys.stderr)
