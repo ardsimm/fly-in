@@ -40,11 +40,11 @@ class ColorManager:
         return cls.__colors_dict
 
     @classmethod
-    def get_color(cls, color_name: str) -> Union[str, pygame.Color]:
+    def get_color(cls, color_name: str) -> pygame.Color:
         color_value = cls.get_colors_dict().get(color_name)
         if not color_value:
             try:
-                color_value = pygame.Color(color_name)
+                return pygame.Color(color_name)
             except ValueError:
                 color_value = "black"
-        return color_value
+        return pygame.Color(color_value)
