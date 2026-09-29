@@ -1,6 +1,8 @@
 import json
 import sys
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
+
+import pygame
 
 BORING_BACKUP_DICT = {
     "red": "red",
@@ -38,8 +40,11 @@ class ColorManager:
         return cls.__colors_dict
 
     @classmethod
-    def get_color(cls, color_name: str) -> str:
+    def get_color(cls, color_name: str) -> Union[str, pygame.Color]:
         color_value = cls.get_colors_dict().get(color_name)
         if not color_value:
-            return "black"
+            try:
+                color_value = pygame.Color(color_name)
+            except ValueError:
+                color_value = "black"
         return color_value
