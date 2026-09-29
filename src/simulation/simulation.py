@@ -400,7 +400,7 @@ class Simulation:
     ) -> None:
         for turn in turns[1:]:
             for drone, step in turn:
-                print(drone, step, sep="-", end=" ")
+                print(drone, step, sep="-", end="")
             print()
 
     def check_solvable(self, map: Map) -> None:
