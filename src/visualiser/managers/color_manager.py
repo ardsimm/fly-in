@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 from typing import Dict, Optional
 
@@ -11,7 +12,6 @@ BORING_BACKUP_DICT = {
     "yellow": "yellow",
     "pink": "pink",
     "violet": "violet",
-    "mauve": "mauve",
     "orange": "orange",
     "brown": "brown",
     "teal": "teal",
@@ -27,7 +27,16 @@ class ColorManager:
     def get_colors_dict(cls) -> Dict[str, str]:
         if cls.__colors_dict is None:
             try:
-                with open("data/colors.json") as colors_files:
+                with open(
+                    os.path.join(
+                        os.path.dirname(__file__),
+                        "..",
+                        "..",
+                        "..",
+                        "data",
+                        "colors.json",
+                    )
+                ) as colors_files:
                     cls.__colors_dict = json.loads(colors_files.read())
             except (OSError, json.JSONDecodeError):
                 print(
