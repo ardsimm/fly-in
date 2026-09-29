@@ -8,6 +8,7 @@ from src.enums.node_priority import NodePriority
 from src.models.node import Node
 from src.visualiser.managers.color_manager import ColorManager
 from src.visualiser.managers.coordinate_manager import CoordinateManager
+from src.visualiser.managers.font_manager import FontManager
 from src.visualiser.managers.mouse_manager import MouseManager
 
 from .element import Element
@@ -128,7 +129,7 @@ class NodeElement(Element):
             self.node_radius - 5,
         )
 
-        font = pygame.font.Font(
+        font = FontManager.get_font(
             "freesansbold.ttf", floor(self.node_bounding_rect_size / 6)
         )
 

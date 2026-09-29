@@ -9,6 +9,7 @@ from src.models.drone import Drone
 from src.models.map import Map
 from src.visualiser.elements.element import Element
 from src.visualiser.managers.coordinate_manager import CoordinateManager
+from src.visualiser.managers.font_manager import FontManager
 
 
 @final
@@ -106,7 +107,7 @@ class DroneElement(Element):
             drone_radius - 2,
         )
 
-        font = pygame.font.Font(
+        font = FontManager.get_font(
             "freesansbold.ttf", floor(drone_radius / 2)
         )
 

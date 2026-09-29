@@ -6,6 +6,7 @@ from typing_extensions import final, override
 from src.models.connection import Connection
 from src.visualiser.elements.element import Element
 from src.visualiser.managers.coordinate_manager import CoordinateManager
+from src.visualiser.managers.font_manager import FontManager
 
 
 @final
@@ -67,7 +68,7 @@ class ConnectionElement(Element):
             width=3,
         )
 
-        font = pygame.font.Font(
+        font = FontManager.get_font(
             "freesansbold.ttf", floor(self.node_bounding_rect_size / 6)
         )
         capacity_font_render = font.render(
