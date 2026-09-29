@@ -162,7 +162,11 @@ class Simulation:
                             next_node in visited
                             or next_node.priority == NodePriority.blocked.value
                             or connection_occupency >= connection_capacity
-                            or next_node_occupency >= next_node_capacity
+                            or (
+                                next_node_occupency >= next_node_capacity
+                                and next_node.priority
+                                != NodePriority.restricted.value
+                            )
                         ):
                             can_wait = True
                             continue
@@ -274,7 +278,10 @@ class Simulation:
                 ):
                     raise PathNotFoundError("Path not found")
 
-                if current_step is not None:
+                if (
+                    current_step is not None
+                    and not isinstance(current_step, Connection)
+                ):
                     _ = allocation_table[turn].setdefault(current_step, 0)
                     allocation_table[turn][current_step] += 1
 
