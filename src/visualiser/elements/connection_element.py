@@ -59,28 +59,7 @@ class ConnectionElement(Element):
         to_x += padding_x
         to_y += padding_y
 
-        connection_color = ColorManager.get_color(
-            "red"
-            if (
-                self.connection.nodes[1].priority
-                == NodePriority.restricted.value
-            )
-            else (
-                "blue"
-                if (
-                    self.connection.nodes[1].priority
-                    == NodePriority.priority.value
-                )
-                else (
-                    "white"
-                    if (
-                        self.connection.nodes[1].priority
-                        == NodePriority.normal.value
-                    )
-                    else "black"
-                )
-            )
-        )
+        connection_color = "white"
 
         _ = pygame.draw.aaline(
             self.screen,
@@ -96,11 +75,7 @@ class ConnectionElement(Element):
         capacity_font_render = font.render(
             f"{self.connection.capacity}",
             True,
-            (
-                "black"
-                if (connection_color == ColorManager.get_color("white"))
-                else "white"
-            ),
+            "black",
             connection_color,
         )
         capacity_rect = capacity_font_render.get_rect()

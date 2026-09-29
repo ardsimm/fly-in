@@ -4,6 +4,7 @@ from typing import Tuple
 import pygame
 from typing_extensions import final, override
 
+from src.enums.node_priority import NodePriority
 from src.models.node import Node
 from src.visualiser.managers.color_manager import ColorManager
 from src.visualiser.managers.coordinate_manager import CoordinateManager
@@ -90,9 +91,32 @@ class NodeElement(Element):
         circle_x += padding_x
         circle_y += padding_y
 
+        border_color = ColorManager.get_color(
+            "red"
+            if (
+                self.node.priority
+                == NodePriority.restricted.value
+            )
+            else (
+                "blue"
+                if (
+                    self.node.priority
+                    == NodePriority.priority.value
+                )
+                else (
+                    "white"
+                    if (
+                        self.node.priority
+                        == NodePriority.normal.value
+                    )
+                    else "black"
+                )
+            )
+        )
+
         _ = pygame.draw.aacircle(
             self.screen,
-            (250, 250, 250),
+            border_color,
             pygame.Vector2(circle_x, circle_y),
             self.node_radius,
         )
