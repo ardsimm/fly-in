@@ -10,6 +10,10 @@ class FontManager:
 
     @classmethod
     def get_font(cls, name: FileLike, size: int) -> pygame.Font:
-        return cls.fonts.setdefault((name, size), pygame.font.Font(
-            name, size
-        ))
+        font = cls.fonts.get((name, size))
+        if font is None:
+            cls.fonts[(name, size)] = pygame.font.Font(
+                name, size
+            )
+        assert cls.fonts[(name, size)] is not None
+        return cls.fonts[(name, size)]
