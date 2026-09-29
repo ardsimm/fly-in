@@ -1,0 +1,28 @@
+# Three disjoint lanes of lengths 3, 4 and 5 moves.
+# Optimal flow splits drones so all lanes finish at about the same time.
+nb_drones: 30
+
+start_hub: start 0 2 [color=green]
+hub: a1 1 0
+hub: a2 2 0
+hub: b1 1 2
+hub: b2 2 2
+hub: b3 3 2
+hub: c1 1 4
+hub: c2 2 4
+hub: c3 3 4
+hub: c4 4 4
+end_hub: goal 5 2 [color=red]
+
+connection: start-a1
+connection: a1-a2
+connection: a2-goal
+connection: start-b1
+connection: b1-b2
+connection: b2-b3
+connection: b3-goal
+connection: start-c1
+connection: c1-c2
+connection: c2-c3
+connection: c3-c4
+connection: c4-goal

@@ -1,0 +1,13 @@
+# Link occupancy during the flight turn. The subject says the drone
+# "occupies the connection during transit". start-r has capacity 1:
+# while D0 is on start-r (t1), D1 must not also be on start-r.
+# r holds 2, so zone capacity is never the limiting factor here.
+# Expected: D1 is never on start-r on the same turn as D0.
+nb_drones: 2
+
+start_hub: start 0 0 [color=green]
+hub: r 1 0 [zone=restricted color=red max_drones=2]
+end_hub: goal 2 0 [color=yellow]
+
+connection: start-r
+connection: r-goal [max_link_capacity=2]

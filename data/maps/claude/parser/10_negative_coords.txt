@@ -1,0 +1,7 @@
+# Negative coordinates are valid integers: must parse and solve (2 turns).
+nb_drones: 1
+start_hub: start -5 -5
+hub: a -4 -5
+end_hub: goal -3 -5
+connection: start-a
+connection: a-goal

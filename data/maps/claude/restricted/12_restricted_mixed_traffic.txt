@@ -1,0 +1,21 @@
+# Several drones sharing a restricted lane and a normal lane.
+# Lane 1: start-r1-r2-goal (restricted, 2+2+1 = 5 turns).
+# Lane 2: start-a-b-c-goal (normal, 4 turns).
+# Every property must hold for every drone; r1 and r2 hold 1 drone each.
+nb_drones: 8
+
+start_hub: start 0 1 [color=green]
+hub: r1 1 0 [zone=restricted color=red]
+hub: r2 2 0 [zone=restricted color=red]
+hub: a 1 2
+hub: b 2 2
+hub: c 3 2
+end_hub: goal 4 1 [color=yellow]
+
+connection: start-r1
+connection: r1-r2
+connection: r2-goal
+connection: start-a
+connection: a-b
+connection: b-c
+connection: c-goal

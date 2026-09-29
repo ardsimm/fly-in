@@ -1,0 +1,13 @@
+# Same as 03 but the middle connection is written against travel order
+# (r2-r1), so a "first restricted end" rule picks the other zone.
+# Expected: t0 start, t1 start-r1, t2 r1, t3 r2-r1, t4 r2, t5 goal => 5 turns.
+nb_drones: 1
+
+start_hub: start 0 0 [color=green]
+hub: r1 1 0 [zone=restricted color=red]
+hub: r2 2 0 [zone=restricted color=red]
+end_hub: goal 3 0 [color=yellow]
+
+connection: start-r1
+connection: r2-r1
+connection: r2-goal

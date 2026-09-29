@@ -1,0 +1,15 @@
+# Property 1 and 2 with normal zones around the restricted one:
+# leaving a restricted zone towards a normal zone costs 1 turn.
+# Expected: t0 start, t1 a, t2 a-r, t3 r, t4 b, t5 goal  => 5 turns.
+nb_drones: 1
+
+start_hub: start 0 0 [color=green]
+hub: a 1 0
+hub: r 2 0 [zone=restricted color=red]
+hub: b 3 0
+end_hub: goal 4 0 [color=yellow]
+
+connection: start-a
+connection: a-r
+connection: r-b
+connection: b-goal

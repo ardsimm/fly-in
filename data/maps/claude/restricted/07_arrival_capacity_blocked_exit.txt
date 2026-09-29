@@ -1,0 +1,19 @@
+# Property 3 when r empties slowly: r (max_drones=1) can only be left
+# through c (max_drones=1), which a second lane start-x-c also feeds.
+# Drones in r may have to wait there, so r can stay full for several
+# turns. A drone must never take off towards r unless r has room on its
+# landing turn (two turns after take-off).
+# Expected: r and c never hold 2 drones, no drone ever waits on start-r.
+nb_drones: 6
+
+start_hub: start 0 1 [color=green]
+hub: r 1 0 [zone=restricted color=red]
+hub: x 1 2
+hub: c 2 1
+end_hub: goal 3 1 [color=yellow]
+
+connection: start-r [max_link_capacity=6]
+connection: start-x
+connection: r-c
+connection: x-c
+connection: c-goal

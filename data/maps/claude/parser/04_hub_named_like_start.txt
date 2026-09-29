@@ -1,0 +1,6 @@
+# Zone names must be unique (VII.4): a hub reusing the start hub name must be rejected.
+nb_drones: 2
+start_hub: start 0 0
+hub: start 1 0
+end_hub: goal 2 0
+connection: start-goal

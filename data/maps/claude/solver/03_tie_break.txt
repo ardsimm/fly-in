@@ -1,0 +1,18 @@
+# Tie-break trap: start-b-a-goal and start-b-c-goal both take 3 moves.
+# D1 (after D0 took start-a-goal) picks one of them without looking ahead;
+# picking the one through a blocks D2's only other 2-move route.
+# Optimal: 3 turns.
+nb_drones: 3
+
+start_hub: start 0 1 [color=green]
+hub: a 1 0 [color=blue]
+hub: b 1 2 [color=blue]
+hub: c 2 2 [color=blue]
+end_hub: goal 2 0 [color=red]
+
+connection: start-a
+connection: start-b
+connection: a-b
+connection: a-goal
+connection: goal-c
+connection: c-b

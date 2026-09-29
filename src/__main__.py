@@ -1,18 +1,81 @@
+import os
 import sys
 from traceback import print_exception
+from typing import Dict, List, Tuple, Union
+
+from src.models.connection import Connection
+from src.models.drone import Drone
+from src.models.node import Node
+from src.parser import Parser, ParsingError
+from src.simulation import PathNotFoundError, Simulation
+from src.simulation.simulation_exceptions import InvalidMoveError
 
 
 class Main:
+    """Entry point of the program."""
 
     @staticmethod
-    def main() -> None:
-        print("Hello World !")
+    def main(ac: int, av: list[str]) -> int:
+        """Parse a map, solve it, print the moves and open the visualiser.
+
+        Args:
+            ac: Number of command line arguments.
+            av: Command line arguments, av[1] being the map file path.
+
+        Returns:
+            The exit status: 0 on success, 1 on error.
+        """
+        if ac < 2:
+            print("Invalid usage, this program needs a map to run")
+            print("Example usage")
+            print("uv run python -m src data/maps/easy/01_linear_path.txt")
+            print("OR make run MAP=data/maps/easy/01_linear_path.txt")
+            return 1
+        map_path = av[1]
+        map_content: str
+        try:
+            with open(map_path) as file:
+                map_content = file.read()
+        except (OSError, UnicodeDecodeError) as e:
+            print(f"Failed to read map file: {e}", file=sys.stderr)
+            return 1
+        parser = Parser()
+        try:
+            map = parser.parse(map_content)
+        except ParsingError as e:
+            print(e, file=sys.stderr)
+            return 1
+        assert map is not None
+        simulation = Simulation()
+        try:
+            simulation.check_solvable(map)
+        except PathNotFoundError:
+            print("Error: map is not solvable", file=sys.stderr)
+            return 1
+        turns: List[List[Tuple[Drone, Union[Connection, Node]]]] = []
+        paths: Dict[Drone, List[Union[Node, Connection]]] = {}
+        try:
+            paths = simulation.cooperative_bfs(map)
+            turns = simulation.get_turns(map, paths)
+            simulation.print_turns(turns)
+
+        except PathNotFoundError:
+            print("Failed to find solution", file=sys.stderr)
+            return 1
+        except InvalidMoveError:
+            print("Failed to validate turns", file=sys.stderr)
+            return 1
+
+        from src.visualiser import Visualiser
+        return Visualiser(map, simulation.get_turns_with_waits(paths)).render()
 
 
 if __name__ == "__main__":
     try:
-        Main.main()
-    except Exception as e:
+        # Disable pygame banner
+        os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+        sys.exit(Main.main(len(sys.argv), sys.argv))
+    except Exception as e:  # noqa: BLE001
         print("An unhandled exception occured:", file=sys.stderr)
         print_exception(e)
         sys.exit(1)

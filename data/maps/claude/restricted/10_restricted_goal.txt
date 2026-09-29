@@ -1,0 +1,11 @@
+# The end hub itself is restricted (the parser accepts zone= on end_hub).
+# Movement into a restricted zone costs 2 turns whatever the zone is.
+# Expected: t0 start, t1 a, t2 a-goal, t3 goal => 3 turns.
+nb_drones: 1
+
+start_hub: start 0 0 [color=green]
+hub: a 1 0
+end_hub: goal 2 0 [zone=restricted color=yellow]
+
+connection: start-a
+connection: a-goal

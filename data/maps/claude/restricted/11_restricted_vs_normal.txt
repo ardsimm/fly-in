@@ -1,0 +1,20 @@
+# Time cost must drive the choice, not the number of hops.
+# start-r-goal: 2 hops, 3 turns.  start-a-b-goal: 3 hops, 3 turns.
+# start-c-goal: 2 hops, 2 turns (the fastest).
+# 1 drone: expected start, c, goal (2 turns).
+nb_drones: 1
+
+start_hub: start 0 1 [color=green]
+hub: r 1 0 [zone=restricted color=red]
+hub: c 1 1
+hub: a 1 2
+hub: b 2 2
+end_hub: goal 3 1 [color=yellow]
+
+connection: start-r
+connection: r-goal
+connection: start-c
+connection: c-goal
+connection: start-a
+connection: a-b
+connection: b-goal
