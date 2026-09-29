@@ -1,5 +1,4 @@
 VENV ?= .venv
-NAME = fly-in
 MAP ?= data/maps/easy/01_linear_path.txt
 
 $(VENV): pyproject.toml
@@ -13,15 +12,7 @@ install: $(VENV)
 debug: install
 	uv run python -m pdb -m src $(MAP)
 
-build: install
-	printf '#!/usr/bin/env bash\ncd "$$(dirname "$${BASH_SOURCE[0]}")"\nexec uv run python -m src "$$@"\n' > $(NAME)
-	chmod +x $(NAME)
-
-re:
-	rm -f $(NAME)
-	$(MAKE) build
-
-re-deps: fclean install
+re: fclean install
 
 clean:
 	find . -type d -name __pycache__ -exec rm -rf {} +
@@ -39,7 +30,14 @@ flake8: install
 
 mypy: install
 	echo Running Mypy
-	uv run python -m mypy src --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs --exclude $(VENV);
+	uv run python -m mypy . \
+		--warn-return-any \
+		--warn-unused-ignores \
+		--ignore-missing-imports \
+		--disallow-untyped-defs \
+		--check-untyped-defs \
+		--exclude \
+		$(VENV);
 
 lint: install flake8 mypy
 
@@ -52,4 +50,4 @@ lint-strict: flake8 mypy-strict
 black: install
 	uv run python -m black --line-length 79 .
 
-.PHONY: run install debug build re re-deps clean fclean flake8 mypy lint mypy-strict lint-strict black
+.PHONY: run install debug re clean fclean flake8 mypy lint mypy-strict lint-strict black
