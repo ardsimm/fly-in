@@ -582,12 +582,10 @@ class Parser:
                         exit_point = self.__parse_end_hub(line)
                         if (
                             exit_point.priority == NodePriority.blocked.value
-                            or exit_point.priority
-                            == NodePriority.restricted.value
                         ):
                             raise ParsingError(
                                 f"Error in line \"{line}\":\n"
-                                + "end_hub cannot be blocked or restricted"
+                                + "end_hub cannot be blocked"
                             )
                         nodes.append(exit_point)
                         if exit_point.name in node_names:
