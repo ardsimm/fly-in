@@ -48,13 +48,11 @@ class Main:
             turns = simulation.get_turns(map, paths)
             simulation.print_turns(turns)
 
-        except PathNotFoundError as e:
+        except PathNotFoundError:
             print("Failed to find solution", file=sys.stderr)
-            print_exception(e)
             return 1
-        except InvalidMoveError as e:
+        except InvalidMoveError:
             print("Failed to validate turns", file=sys.stderr)
-            print_exception(e)
             return 1
 
         from src.visualiser import Visualiser
