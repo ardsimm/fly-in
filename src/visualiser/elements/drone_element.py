@@ -91,7 +91,7 @@ class DroneElement(Element):
             self.screen.height,
             self.screen.width,
         )
-        drone_radius = floor(self.node_bounding_rect_size / 10)
+        drone_radius = floor(self.node_bounding_rect_size / 6)
 
         circle_x, circle_y = CoordinateManager.get_node_real_coordinate(
             self.pos.x, self.pos.y, self.node_bounding_rect_size
@@ -112,6 +112,17 @@ class DroneElement(Element):
             pygame.Vector2(circle_x, circle_y),
             drone_radius - 2,
         )
+
+        font = pygame.font.Font(
+            "freesansbold.ttf", floor(drone_radius / 2)
+        )
+
+        label_font_render = font.render(
+            f"D{self.drone.id}", True, "white", None
+        )
+        label_rect = label_font_render.get_rect()
+        label_rect.center = (circle_x, circle_y)
+        _ = self.screen.blit(label_font_render, label_rect)
 
     def move_to(self, target: pygame.Vector2, duration: int) -> None:
         self.__current_pos = self.pos
