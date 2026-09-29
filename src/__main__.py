@@ -25,7 +25,7 @@ class Main:
         try:
             with open(map_path) as file:
                 map_content = file.read()
-        except OSError as e:
+        except (OSError, UnicodeDecodeError) as e:
             print(f"Failed to read map file: {e}", file=sys.stderr)
             return 1
         parser = Parser()
@@ -41,9 +41,6 @@ class Main:
         except PathNotFoundError:
             print("Error: map is not solvable", file=sys.stderr)
             return 1
-        except InvalidMoveError as e:
-            print(e)
-            return 1
         turns: List[List[Tuple[Drone, Union[Connection, Node]]]] = []
         paths: Dict[Drone, List[Union[Node, Connection]]] = {}
         try:
@@ -54,6 +51,11 @@ class Main:
         except PathNotFoundError as e:
             print("Failed to find solution", file=sys.stderr)
             print_exception(e)
+            return 1
+        except InvalidMoveError as e:
+            print("Failed to validate turns", file=sys.stderr)
+            print_exception(e)
+            return 1
 
         from src.visualiser import Visualiser
         return Visualiser(map, simulation.get_turns_with_waits(paths)).render()
