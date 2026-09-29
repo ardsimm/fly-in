@@ -258,7 +258,7 @@ class Parser:
         hub_name = splitted_line[1]
         if " " in hub_name or "-" in hub_name:
             raise ParsingError(
-                f"Error in line \"{line}\":\n"
+                f"Error in line: \"{line}\":\n"
                 + f"Invalid name {hub_name}:"
                 + " names cannot contain spaces or dashes"
             )
@@ -267,7 +267,7 @@ class Parser:
             hub_x = self.__parse_coordinate(splitted_line[2])
             hub_y = self.__parse_coordinate(splitted_line[3])
         except ParsingError as e:
-            raise ParsingError(f"Error in line \"{line}\":\n{e}")
+            raise ParsingError(f"Error in line: \"{line}\":\n{e}")
 
         if len(splitted_line) >= 5:
             hub_metadata = splitted_line[4]
@@ -281,7 +281,7 @@ class Parser:
                 )
             except ParsingError as e:
                 raise ParsingError(
-                    f"Error in line \"{line}\":\n{e}"
+                    f"Error in line: \"{line}\":\n{e}"
                 )
         else:
             metadata = {}
@@ -290,7 +290,7 @@ class Parser:
             zone = self.__extract_zone(metadata)
             max_drones = self.__extract_max_drones(metadata)
         except ParsingError as e:
-            raise ParsingError(f"Error in line \"{line}\":\n{e}")
+            raise ParsingError(f"Error in line: \"{line}\":\n{e}")
 
         return Node(
             name=hub_name,
@@ -396,19 +396,19 @@ class Parser:
         splitted_hubs = splitted_line[1].split("-")
         if len(splitted_hubs) != 2:
             raise ParsingError(
-                f"Error in line \"{' '.join(splitted_line)}\":\n"
+                f"Error in line: \"{' '.join(splitted_line)}\":\n"
                 + "Missing hub"
             )
         try:
             hub1_name, hub2_name = splitted_hubs
         except ValueError:
             raise ParsingError(
-                f"Error in line \"{' '.join(splitted_line)}\":\n"
+                f"Error in line: \"{' '.join(splitted_line)}\":\n"
                 + "Invalid connection: Missing hubs or malformated field"
             )
         if hub1_name not in available_hub_names:
             raise ParsingError(
-                f"Error in line \"{' '.join(splitted_line)}\":\n"
+                f"Error in line: \"{' '.join(splitted_line)}\":\n"
                 + f"Hub name {hub1_name} is invalid,"
                 + " options: "
                 + f"[{', '.join(available_hub_names)}]"
@@ -416,7 +416,7 @@ class Parser:
             )
         if hub2_name not in available_hub_names:
             raise ParsingError(
-                f"Error in line \"{' '.join(splitted_line)}\":\n"
+                f"Error in line: \"{' '.join(splitted_line)}\":\n"
                 + f"Hub name {hub2_name} is invalid,"
                 + " options: "
                 + f"[{', '.join(available_hub_names)}]"
@@ -445,7 +445,7 @@ class Parser:
 
         if hub1_name == hub2_name:
             raise ParsingError(
-                f"Error in line \"{line}\":\n"
+                f"Error in line: \"{line}\":\n"
                 + f"This implementation does not accept self-loops ({
                     hub1_name
                 }-{
@@ -459,16 +459,21 @@ class Parser:
             metadata_string = None
 
         if metadata_string is not None:
-            metadata = self.__parse_metadata(
-                line=metadata_string,
-                expected_fields=[
-                    {
-                        "name": "max_link_capacity",
-                        "type": MetadataValueType.INT,
-                        "ignore": False,
-                    }
-                ],
-            )
+            try:
+                metadata = self.__parse_metadata(
+                    line=metadata_string,
+                    expected_fields=[
+                        {
+                            "name": "max_link_capacity",
+                            "type": MetadataValueType.INT,
+                            "ignore": False,
+                        }
+                    ],
+                )
+            except ParsingError as e:
+                raise ParsingError(
+                    f"Error in line: \"{line}\":\n{e}"
+                )
         else:
             metadata = {}
 
@@ -527,7 +532,12 @@ class Parser:
 
             if len(lines) == 0:
                 raise ParsingError("Empty map file")
-            if not lines[0].startswith("nb_drones: "):
+            if not lines[0].startswith("nb_drones:"):
+                if not lines[0].startswith("nb_drones: "):
+                    raise ParsingError(
+                        f'Error in line: "{lines[0]}":\n'
+                        + "Missing space after \"nb_drones:\""
+                    )
                 raise ParsingError(
                     f'Error in line "{lines[0]}":\n'
                     + "First line must be nb_drones"
@@ -559,7 +569,7 @@ class Parser:
                             == NodePriority.restricted.value
                         ):
                             raise ParsingError(
-                                f"Error in line \"{line}\":\n"
+                                f"Error in line: \"{line}\":\n"
                                 + "start_hub cannot be blocked or restricted"
                             )
                         nodes.append(entry_point)
@@ -584,7 +594,7 @@ class Parser:
                             exit_point.priority == NodePriority.blocked.value
                         ):
                             raise ParsingError(
-                                f"Error in line \"{line}\":\n"
+                                f"Error in line: \"{line}\":\n"
                                 + "end_hub cannot be blocked"
                             )
                         nodes.append(exit_point)
