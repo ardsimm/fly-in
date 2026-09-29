@@ -120,8 +120,7 @@ class Parser:
             field_occurence = field_occurences.setdefault(field_name, 0)
             if field_occurence > 0:
                 raise ParsingError(
-                    f'Error in line "{line}":\n'
-                    + f"Duplicated metadata field {field_name}"
+                    f"Duplicated metadata field {field_name}"
                 )
             field_occurences[field_name] += 1
             expected_field = next(
@@ -136,8 +135,7 @@ class Parser:
             )
             if expected_field is None:
                 raise ParsingError(
-                    f'Error in line "{line}"\n'
-                    + f"Unexpected metadata {field_name}, "
+                    f"Unexpected metadata {field_name}, "
                     + f"options: {expected_field_names}"
                 )
             if not expected_field.get("ignore"):
@@ -195,7 +193,7 @@ class Parser:
         if max_drones < 1:
             raise ParsingError(
                 f"Invalid max drones {max_drones}:"
-                + "max_drones must be am integer >= 1"
+                + " max_drones must be an integer >= 1"
             )
         return max_drones
 
@@ -260,12 +258,16 @@ class Parser:
         hub_name = splitted_line[1]
         if " " in hub_name or "-" in hub_name:
             raise ParsingError(
-                f"Invalid name {hub_name}:"
-                + "names cannot contain spaces or dashes"
+                f"Error in line \"{line}\":\n"
+                + f"Invalid name {hub_name}:"
+                + " names cannot contain spaces or dashes"
             )
 
-        hub_x = self.__parse_coordinate(splitted_line[2])
-        hub_y = self.__parse_coordinate(splitted_line[3])
+        try:
+            hub_x = self.__parse_coordinate(splitted_line[2])
+            hub_y = self.__parse_coordinate(splitted_line[3])
+        except ParsingError as e:
+            raise ParsingError(f"Error in line \"{line}\":\n{e}")
 
         if len(splitted_line) >= 5:
             hub_metadata = splitted_line[4]
@@ -273,23 +275,29 @@ class Parser:
             hub_metadata = None
 
         if hub_metadata is not None:
-            metadata = self.__parse_metadata(
-                line=hub_metadata, expected_fields=expected_metadata
-            )
+            try:
+                metadata = self.__parse_metadata(
+                    line=hub_metadata, expected_fields=expected_metadata
+                )
+            except ParsingError as e:
+                raise ParsingError(
+                    f"Error in line \"{line}\":\n{e}"
+                )
         else:
             metadata = {}
 
         try:
             zone = self.__extract_zone(metadata)
+            max_drones = self.__extract_max_drones(metadata)
         except ParsingError as e:
-            raise ParsingError(f'Error in line "{line}":\n' f"{e}")
+            raise ParsingError(f"Error in line \"{line}\":\n{e}")
 
         return Node(
             name=hub_name,
             color=self.__extract_color(metadata),
             x=hub_x,
             y=hub_y,
-            max_drones=self.__extract_max_drones(metadata),
+            max_drones=max_drones,
             priority=self.__map_priority(zone=zone, hub_name=hub_name),
             connections=[],
         )
@@ -437,7 +445,8 @@ class Parser:
 
         if hub1_name == hub2_name:
             raise ParsingError(
-                f"This implementation does not accept self-loops ({
+                f"Error in line \"{line}\":\n"
+                + f"This implementation does not accept self-loops ({
                     hub1_name
                 }-{
                     hub2_name
@@ -533,12 +542,26 @@ class Parser:
             connections: List[Connection] = []
             for line in lines[1:]:
                 try:
-                    if line.startswith("start_hub: "):
+                    if line.startswith("start_hub:"):
+                        if not line.startswith("start_hub: "):
+                            raise ParsingError(
+                                f'Error in line: "{line}":\n'
+                                + "Missing space after \"start_hub:\""
+                            )
                         if entry_point is not None:
                             raise ParsingError(
                                 "File must only contain one start_hub"
                             )
                         entry_point = self.__parse_start_hub(line)
+                        if (
+                            entry_point.priority == NodePriority.blocked.value
+                            or entry_point.priority
+                            == NodePriority.restricted.value
+                        ):
+                            raise ParsingError(
+                                f"Error in line \"{line}\":\n"
+                                + "start_hub cannot be blocked or restricted"
+                            )
                         nodes.append(entry_point)
                         if entry_point.name in node_names:
                             raise ParsingError(
@@ -546,12 +569,26 @@ class Parser:
                                 + f"duplicated node name {entry_point.name}"
                             )
                         node_names.append(entry_point.name)
-                    elif line.startswith("end_hub: "):
+                    elif line.startswith("end_hub:"):
+                        if not line.startswith("end_hub: "):
+                            raise ParsingError(
+                                f'Error in line: "{line}":\n'
+                                + "Missing space after \"end_hub:\""
+                            )
                         if exit_point is not None:
                             raise ParsingError(
                                 "File must only contain one end_hub"
                             )
                         exit_point = self.__parse_end_hub(line)
+                        if (
+                            exit_point.priority == NodePriority.blocked.value
+                            or exit_point.priority
+                            == NodePriority.restricted.value
+                        ):
+                            raise ParsingError(
+                                f"Error in line \"{line}\":\n"
+                                + "end_hub cannot be blocked or restricted"
+                            )
                         nodes.append(exit_point)
                         if exit_point.name in node_names:
                             raise ParsingError(
@@ -559,7 +596,12 @@ class Parser:
                                 + f"duplicated node name {exit_point.name}"
                             )
                         node_names.append(exit_point.name)
-                    elif line.startswith("hub: "):
+                    elif line.startswith("hub:"):
+                        if not line.startswith("hub: "):
+                            raise ParsingError(
+                                f'Error in line: "{line}":\n'
+                                + "Missing space after \"hub:\""
+                            )
                         node = self.__parse_hub(line=line)
                         nodes.append(node)
                         if node.name in node_names:
@@ -568,7 +610,12 @@ class Parser:
                                 + f"duplicated node name {node.name}"
                             )
                         node_names.append(node.name)
-                    elif line.startswith("connection: "):
+                    elif line.startswith("connection:"):
+                        if not line.startswith("connection: "):
+                            raise ParsingError(
+                                f'Error in line: "{line}":\n'
+                                + "Missing space after \"connection:\""
+                            )
                         known_nodes = list(nodes)
                         connection = self.__parse_connection(line, known_nodes)
                         names = [node.name for node in connection.nodes]
@@ -587,10 +634,17 @@ class Parser:
                             node.connections.append(connection)
                         connections.append(connection)
                     else:
+                        line_prefix: str
+                        if ":" in line:
+                            line_prefix = line[:line.index(':')]
+                        elif " " in line:
+                            line_prefix = line[:line.index(' ')]
+                        else:
+                            line_prefix = line
                         raise ParsingError(
                             f'Error in line "{line}":\n'
-                            + f"Invalid line prefix \"f{
-                                line[:line.index(':')]
+                            + f"Invalid line prefix \"{
+                                line_prefix
                             }\""
                         )
                 except ParsingError:
@@ -615,8 +669,19 @@ class Parser:
 
             entry_point.drones_count = nb_drones
             for i in range(nb_drones):
-                drone = Drone(id=i + 1, name=f"D{i + 1}", path=[])
+                drone = Drone(id=i + 1, name=f"D{i + 1}")
                 drones.append(drone)
+
+            for node in nodes:
+                node.connections.sort(
+                    key=lambda connection: -next(
+                        iter(
+                            connected_node
+                            for connected_node in connection.nodes
+                            if connected_node != node
+                        )
+                    ).priority
+                )
 
             return Map(
                 nb_drones=nb_drones,
