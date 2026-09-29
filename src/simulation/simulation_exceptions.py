@@ -1,10 +1,10 @@
 class SimulationException(Exception):
-    pass
+    """Base class of the simulation errors."""
 
 
 class PathNotFoundError(SimulationException):
-    pass
+    """Raised when no path leads to the end hub."""
 
 
 class InvalidMoveError(SimulationException):
-    pass
+    """Raised when a schedule breaks a movement rule."""

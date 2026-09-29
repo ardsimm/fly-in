@@ -1,2 +1,2 @@
 class ParsingError(Exception):
-    pass
+    """Raised when the map file is invalid."""

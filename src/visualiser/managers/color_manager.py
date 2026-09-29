@@ -20,11 +20,17 @@ BORING_BACKUP_DICT = {
 
 
 class ColorManager:
+    """Resolve free-form color names to pygame colors."""
 
     __colors_dict: Optional[Dict[str, str]] = None
 
     @classmethod
     def get_colors_dict(cls) -> Dict[str, str]:
+        """Load data/colors.json once, or fall back to a built-in dict.
+
+        Returns:
+            The hex value of each known color name.
+        """
         if cls.__colors_dict is None:
             try:
                 with open(
@@ -50,6 +56,15 @@ class ColorManager:
 
     @classmethod
     def get_color(cls, color_name: str) -> pygame.Color:
+        """Resolve a color name.
+
+        Args:
+            color_name: Color name from the map.
+
+        Returns:
+            The color from colors.json, else pygame's color of that name,
+            else black.
+        """
         color_value = cls.get_colors_dict().get(color_name)
         if not color_value:
             try:

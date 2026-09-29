@@ -12,8 +12,19 @@ from src.simulation.simulation_exceptions import InvalidMoveError
 
 
 class Main:
+    """Entry point of the program."""
+
     @staticmethod
     def main(ac: int, av: list[str]) -> int:
+        """Parse a map, solve it, print the moves and open the visualiser.
+
+        Args:
+            ac: Number of command line arguments.
+            av: Command line arguments, av[1] being the map file path.
+
+        Returns:
+            The exit status: 0 on success, 1 on error.
+        """
         if ac < 2:
             print("Invalid usage, this program needs a map to run")
             print("Example usage")

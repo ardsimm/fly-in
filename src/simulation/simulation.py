@@ -27,9 +27,20 @@ CooperativePrevDict = Dict[CooperativePrevDictKey, CooperativePrevDictValue]
 
 
 class Simulation:
+    """Pathfinding and validation of the drone moves."""
+
     def __get_next_nodes(
         self, node: Node, available_connections: List[Connection]
     ) -> List[Node]:
+        """List the zones reached from a zone through some connections.
+
+        Args:
+            node: Starting zone.
+            available_connections: Connections to follow.
+
+        Returns:
+            The zones at the other end of the connections.
+        """
         next_nodes: List[Node] = []
         for connection in available_connections:
             next_node = next(
@@ -52,6 +63,19 @@ class Simulation:
         node_to: Node,
         visited: Optional[Set[Node]] = None,
     ) -> List[Node]:
+        """Find a shortest path, ignoring capacities and blocked zones.
+
+        Args:
+            node_from: Starting zone.
+            node_to: Target zone.
+            visited: Zones to skip, only node_from by default.
+
+        Returns:
+            The zones of the path, from node_from to node_to.
+
+        Raises:
+            PathNotFoundError: If node_to cannot be reached.
+        """
         queue: deque[Node] = deque()
         result: List[Node] = []
         prev_nodes: PrevDict = {}
@@ -95,6 +119,23 @@ class Simulation:
     def cooperative_bfs(
         self, map: Map
     ) -> Dict[Drone, List[Union[Node, Connection]]]:
+        """Plan the path of every drone, one drone after the other.
+
+        Each drone runs a time-expanded search against a reservation table
+        shared by all drones, so it routes around the drones planned before
+        it. Waiting in place and restricted zones (2 turns, in flight on the
+        connection in between) are part of the search.
+
+        Args:
+            map: Map to solve.
+
+        Returns:
+            The path of each drone: one zone, or connection when in flight,
+            per turn, starting with the start hub at turn 0.
+
+        Raises:
+            PathNotFoundError: If a drone cannot reach the end hub.
+        """
         paths: Dict[Drone, List[Union[Node, Connection]]] = {}
         allocation_table: Dict[int, Dict[Union[Node, Connection], int]] = {}
 
@@ -300,6 +341,14 @@ class Simulation:
     def get_turns_with_waits(
         self, paths: Dict[Drone, List[Union[Node, Connection]]]
     ) -> List[List[Tuple[Drone, Union[Connection, Node]]]]:
+        """List the position of every drone at every turn.
+
+        Args:
+            paths: Path of each drone, as returned by cooperative_bfs.
+
+        Returns:
+            For each turn, the drones still travelling and their position.
+        """
         turns: List[List[Tuple[Drone, Union[Connection, Node]]]] = []
         max_path_len = max([len(path) for path in paths.values()])
 
@@ -317,6 +366,19 @@ class Simulation:
     def get_turns(
         self, map: Map, paths: Dict[Drone, List[Union[Node, Connection]]]
     ) -> List[List[Tuple[Drone, Union[Connection, Node]]]]:
+        """List the moves of every turn and check them.
+
+        Args:
+            map: Solved map.
+            paths: Path of each drone, as returned by cooperative_bfs.
+
+        Returns:
+            For each turn, the drones that moved and their new position.
+            Turn 0 holds the initial positions.
+
+        Raises:
+            InvalidMoveError: If a move breaks a capacity or zone rule.
+        """
         occupency_table: Dict[Union[Node, Connection], int] = {}
 
         turns: List[List[Tuple[Drone, Union[Connection, Node]]]] = []
@@ -395,8 +457,21 @@ class Simulation:
     def print_turns(
         self, turns: List[List[Tuple[Drone, Union[Connection, Node]]]]
     ) -> None:
+        """Print one line per turn, in the `D<ID>-<zone>` format.
+
+        Args:
+            turns: Moves of each turn, as returned by get_turns.
+        """
         for turn in turns[1:]:
             print(" ".join(f"{drone}-{step}" for drone, step in turn))
 
     def check_solvable(self, map: Map) -> None:
+        """Check that the end hub can be reached from the start hub.
+
+        Args:
+            map: Map to check.
+
+        Raises:
+            PathNotFoundError: If the end hub cannot be reached.
+        """
         _ = self.bfs(map.entry_point, map.exit_point)

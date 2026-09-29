@@ -11,6 +11,7 @@ from src.visualiser.managers.font_manager import FontManager
 
 @final
 class ConnectionElement(Element):
+    """Connection drawn as a line with its capacity."""
 
     screen: pygame.Surface
     connection: Connection
@@ -26,6 +27,15 @@ class ConnectionElement(Element):
         max_y: int,
         node_bounding_rect_size: int,
     ) -> None:
+        """Initialise the element.
+
+        Args:
+            screen: Surface to draw on.
+            connection: Connection to draw.
+            max_x: Maximum x coordinate of the map.
+            max_y: Maximum y coordinate of the map.
+            node_bounding_rect_size: Size of one map unit, in pixels.
+        """
         super().__init__()
         self.screen = screen
         self.connection = connection
@@ -36,6 +46,7 @@ class ConnectionElement(Element):
 
     @override
     def draw(self) -> None:
+        """Draw the line and the capacity label."""
         node_from = self.connection.nodes[0]
         node_to = self.connection.nodes[1]
         padding_x, padding_y = CoordinateManager.get_paddings(

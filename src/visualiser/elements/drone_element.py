@@ -14,6 +14,7 @@ from src.visualiser.managers.font_manager import FontManager
 
 @final
 class DroneElement(Element):
+    """Drone drawn as a labelled circle, animated between steps."""
 
     map: Map
     screen: pygame.Surface
@@ -36,6 +37,16 @@ class DroneElement(Element):
         max_y: int,
         node_bounding_rect_size: int,
     ) -> None:
+        """Initialise the drone at the start hub.
+
+        Args:
+            map: Solved map.
+            screen: Surface to draw on.
+            drone: Drone to draw.
+            max_x: Maximum x coordinate of the map.
+            max_y: Maximum y coordinate of the map.
+            node_bounding_rect_size: Size of one map unit, in pixels.
+        """
         super().__init__()
         self.z_index = 2
         self.screen = screen
@@ -60,10 +71,12 @@ class DroneElement(Element):
 
     @property
     def current_pos(self) -> Tuple[float, float]:
+        """Start position of the current animation."""
         return (self.__current_pos.x, self.__current_pos.y)
 
     @property
     def pos(self) -> pygame.Vector2:
+        """Current position, interpolated, in map coordinates."""
         return pygame.Vector2(
             smoothstep(
                 self.__current_pos.x, self.__next_pos.x, self.animation_time
@@ -75,7 +88,7 @@ class DroneElement(Element):
 
     @override
     def draw(self) -> None:
-
+        """Draw the drone and its ID."""
         padding_x = 0
         padding_y = 0
         padding_x, padding_y = CoordinateManager.get_paddings(
@@ -119,6 +132,12 @@ class DroneElement(Element):
         _ = self.screen.blit(label_font_render, label_rect)
 
     def move_to(self, target: pygame.Vector2, duration: int) -> None:
+        """Start an animation from the current position.
+
+        Args:
+            target: Target position, in map coordinates.
+            duration: Duration of the animation, in milliseconds.
+        """
         self.__current_pos = self.pos
         self.__next_pos = target
         self.animation_time = 0.0
@@ -126,4 +145,10 @@ class DroneElement(Element):
 
     @override
     def update(self, dt: int, combined_dt: int) -> None:
+        """Advance the animation.
+
+        Args:
+            dt: Time since the last frame, in milliseconds.
+            combined_dt: Time since the start, in milliseconds.
+        """
         self.animation_time += dt / self.animation_duration

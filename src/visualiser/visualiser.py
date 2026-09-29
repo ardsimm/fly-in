@@ -15,6 +15,11 @@ from src.visualiser.managers.mouse_manager import MouseManager
 
 
 class Visualiser:
+    """Pygame window animating the drone moves turn by turn.
+
+    Controls: left/right arrows step through the turns, space toggles
+    autoplay, up/down change the speed, r resets, q quits.
+    """
 
     map: Map
     screen: pygame.Surface
@@ -32,6 +37,12 @@ class Visualiser:
     auto_move_delay: int
 
     def __compute_node_bounding_rect(self) -> int:
+        """Compute the size of one map unit on screen.
+
+        Returns:
+            The side of the square cell of one coordinate unit, in pixels
+            (at least 1).
+        """
         max_x = max(self.map.nodes, key=lambda node: node.x).x
         max_y = max(self.map.nodes, key=lambda node: node.y).y
         width = self.window_width / (max_x + 1)
@@ -50,6 +61,17 @@ class Visualiser:
         window_height: Optional[int] = None,
         target_fps: int = 60,
     ) -> None:
+        """Initialise pygame and the window.
+
+        Args:
+            map: Solved map.
+            turns: Positions of the drones per turn, as returned by
+                Simulation.get_turns_with_waits.
+            color_palette: Color palette (unused).
+            window_width: Window width, 4/5 of the screen by default.
+            window_height: Window height, 4/5 of the screen by default.
+            target_fps: Maximum frame rate.
+        """
         _ = pygame.init()
         if window_height is None:
             window_height = floor(pygame.display.Info().current_h * 4 / 5)
@@ -75,14 +97,22 @@ class Visualiser:
         self.auto_move_delay = 500
 
     def __update_elements(self, dt: int, combined_dt: int) -> None:
+        """Update the animation of every element.
+
+        Args:
+            dt: Time since the last frame, in milliseconds.
+            combined_dt: Time since the start, in milliseconds.
+        """
         for element in self.elements:
             element.update(dt, combined_dt)
 
     def __draw_elements(self) -> None:
+        """Draw every element, in z_index order."""
         for element in self.elements:
             element.draw()
 
     def __init_elements(self) -> None:
+        """Create the zone, connection and drone elements."""
         max_x = max(self.map.nodes, key=lambda node: node.x).x
         max_y = max(self.map.nodes, key=lambda node: node.y).y
 
@@ -125,6 +155,14 @@ class Visualiser:
     def __get_animation_target(
         self, step: Union[Connection, Node]
     ) -> Tuple[float, float]:
+        """Get the map position of a step.
+
+        Args:
+            step: Zone, or connection for a drone in flight.
+
+        Returns:
+            The zone coordinates, or the middle of the connection.
+        """
         if isinstance(step, Node):
             return (step.x, step.y)
         else:
@@ -134,6 +172,11 @@ class Visualiser:
             )
 
     def progress_turn(self, direction: Literal[-1, 1]) -> None:
+        """Go one turn forward or backward and animate the drones.
+
+        Args:
+            direction: 1 to go forward, -1 to go backward.
+        """
         next_turn = self.current_turn + direction
         if next_turn >= 0 and next_turn < len(self.turns):
             self.current_turn = next_turn
@@ -150,6 +193,7 @@ class Visualiser:
                 )
 
     def reset_turns(self) -> None:
+        """Go back to the first turn and stop the autoplay."""
         self.auto_move = False
         self.current_turn = 0
         for drone_element in self.drones.values():
@@ -162,6 +206,11 @@ class Visualiser:
         self.auto_move_delay = 500
 
     def render(self) -> int:
+        """Run the window loop until the window is closed.
+
+        Returns:
+            The exit status, 0.
+        """
         clock = pygame.time.Clock()
         running = True
         self.__init_elements()

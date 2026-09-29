@@ -10,18 +10,38 @@ from .parser_exception import ParsingError
 
 
 class MetadataValueType(StrEnum):
+    """Types a metadata value can be parsed to."""
+
     STRING = "string"
     INT = "int"
 
 
 class MetadataFieldTypedDict(TypedDict):
+    """Description of an accepted metadata field.
+
+    Attributes:
+        name: Field name.
+        type: Type the value is parsed to.
+        ignore: Whether the field is accepted but discarded.
+    """
+
     name: str
     type: MetadataValueType
     ignore: bool
 
 
 class Parser:
+    """Parser for the map file format."""
+
     def __split_line(self, line: str) -> List[str]:
+        """Split a line on spaces, keeping a [...] block as one token.
+
+        Args:
+            line: Line to split.
+
+        Returns:
+            The tokens of the line.
+        """
         splitted_line: List[str] = []
         curr_part = ""
         in_metadata = False
@@ -41,6 +61,17 @@ class Parser:
         return splitted_line
 
     def __strip_metadata_line(self, line: str) -> str:
+        """Remove the brackets around a metadata block.
+
+        Args:
+            line: Metadata block, brackets included.
+
+        Returns:
+            The content of the block.
+
+        Raises:
+            ParsingError: If the block is not surrounded by brackets.
+        """
         if not line.startswith("[") or not line.endswith("]"):
             raise ParsingError(
                 "Parsing error: metadata should be surrounded with []"
@@ -52,6 +83,18 @@ class Parser:
     def __split_metadata_fields(
         self, line: str, expected_fields: List[MetadataFieldTypedDict]
     ) -> List[List[str]]:
+        """Split the content of a metadata block into key/value pairs.
+
+        Args:
+            line: Content of the block, without brackets.
+            expected_fields: Accepted fields.
+
+        Returns:
+            One [key, value] list per field.
+
+        Raises:
+            ParsingError: If a field is malformed or not accepted.
+        """
         splitted_fields = [
             field.split("=") for field in line.split(" ") if field != ""
         ]
@@ -78,6 +121,19 @@ class Parser:
         field_value: str,
         expected_fields: List[MetadataFieldTypedDict],
     ) -> Union[str, int]:
+        """Convert a metadata value to the type of its field.
+
+        Args:
+            field_name: Name of the field.
+            field_value: Raw value.
+            expected_fields: Accepted fields.
+
+        Returns:
+            The converted value.
+
+        Raises:
+            ParsingError: If the value cannot be converted.
+        """
         expected_field = next(
             field_dict
             for field_dict in expected_fields
@@ -107,6 +163,18 @@ class Parser:
     def __parse_metadata(
         self, line: str, expected_fields: List[MetadataFieldTypedDict]
     ) -> Dict[str, Union[str, int]]:
+        """Parse a metadata block.
+
+        Args:
+            line: Metadata block, brackets included.
+            expected_fields: Accepted fields.
+
+        Returns:
+            The parsed values by field name, ignored fields excluded.
+
+        Raises:
+            ParsingError: If the block is invalid or a field is duplicated.
+        """
         line = self.__strip_metadata_line(line)
         splitted_fields = self.__split_metadata_fields(line, expected_fields)
         metadata_dict: Dict[str, Union[str, int]] = {}
@@ -149,6 +217,19 @@ class Parser:
     def __split_hub_line(
         self, line: str, expected_prefix: str, example: str
     ) -> List[str]:
+        """Split a hub line and check its prefix and token count.
+
+        Args:
+            line: Hub line.
+            expected_prefix: Expected prefix, e.g. "hub:".
+            example: Valid line shown in the error message.
+
+        Returns:
+            The tokens of the line.
+
+        Raises:
+            ParsingError: If the prefix or the number of tokens is wrong.
+        """
         splitted_line: List[str] = self.__split_line(line)
         splitted_len = len(splitted_line)
         if (
@@ -168,6 +249,18 @@ class Parser:
         metadata: Dict[str, Union[str, int]],
         allowed_values: Optional[List[str]] = None,
     ) -> str:
+        """Get the zone type from parsed metadata.
+
+        Args:
+            metadata: Parsed metadata.
+            allowed_values: Accepted zone types, all of them by default.
+
+        Returns:
+            The zone type, "normal" if unspecified.
+
+        Raises:
+            ParsingError: If the zone type is not accepted.
+        """
         if allowed_values is None:
             allowed_values = ["normal", "restricted", "priority", "blocked"]
         zone = metadata.get("zone") or "normal"
@@ -179,6 +272,14 @@ class Parser:
         return zone
 
     def __extract_color(self, metadata: Dict[str, Union[str, int]]) -> str:
+        """Get the color from parsed metadata.
+
+        Args:
+            metadata: Parsed metadata.
+
+        Returns:
+            The color name, "none" if unspecified.
+        """
         color = metadata.get("color") or "none"
         assert isinstance(color, str)
         return color
@@ -186,6 +287,17 @@ class Parser:
     def __extract_max_drones(
         self, metadata: Dict[str, Union[str, int]]
     ) -> int:
+        """Get the zone capacity from parsed metadata.
+
+        Args:
+            metadata: Parsed metadata.
+
+        Returns:
+            The capacity, 1 if unspecified.
+
+        Raises:
+            ParsingError: If the capacity is lower than 1.
+        """
         max_drones = metadata.get("max_drones")
         if max_drones is None:
             max_drones = 1
@@ -198,6 +310,18 @@ class Parser:
         return max_drones
 
     def __map_priority(self, zone: str, hub_name: str) -> int:
+        """Convert a zone type to its NodePriority value.
+
+        Args:
+            zone: Zone type.
+            hub_name: Name of the hub, for the error message.
+
+        Returns:
+            The NodePriority value of the zone type.
+
+        Raises:
+            ParsingError: If the zone type is unknown.
+        """
         mapped_priorities = {
             "blocked": NodePriority.blocked.value,
             "restricted": NodePriority.restricted.value,
@@ -214,6 +338,17 @@ class Parser:
         return priority
 
     def __parse_coordinate(self, value: str) -> int:
+        """Parse a hub coordinate.
+
+        Args:
+            value: Raw coordinate.
+
+        Returns:
+            The coordinate.
+
+        Raises:
+            ParsingError: If the coordinate is not an integer.
+        """
         assert value is not None
         parsed_value: int
         try:
@@ -233,7 +368,21 @@ class Parser:
         example: str = "hub: {name} {x} {y} [zone={zone_type} color={color}]",
         expected_metadata: Optional[List[MetadataFieldTypedDict]] = None,
     ) -> Node:
+        """Parse a zone line.
 
+        Args:
+            line: Zone line.
+            expected_prefix: Expected prefix of the line.
+            example: Valid line shown in error messages.
+            expected_metadata: Accepted metadata fields, those of "hub:" by
+                default.
+
+        Returns:
+            The parsed zone, without connections.
+
+        Raises:
+            ParsingError: If the line is invalid.
+        """
         if expected_metadata is None:
             expected_metadata = [
                 {
@@ -303,6 +452,17 @@ class Parser:
         )
 
     def __parse_nb_drones(self, line: str) -> int:
+        """Parse the nb_drones line.
+
+        Args:
+            line: nb_drones line.
+
+        Returns:
+            The number of drones.
+
+        Raises:
+            ParsingError: If the line is invalid or the number is below 1.
+        """
         splitted_line = self.__split_line(line)
         if len(splitted_line) != 2 or splitted_line[0] != "nb_drones:":
             raise ParsingError(
@@ -326,6 +486,17 @@ class Parser:
             )
 
     def __parse_start_hub(self, line: str) -> Node:
+        """Parse the start_hub line, ignoring its max_drones.
+
+        Args:
+            line: start_hub line.
+
+        Returns:
+            The start hub.
+
+        Raises:
+            ParsingError: If the line is invalid.
+        """
         return self.__parse_hub(
             line=line,
             expected_prefix="start_hub:",
@@ -350,6 +521,17 @@ class Parser:
         )
 
     def __parse_end_hub(self, line: str) -> Node:
+        """Parse the end_hub line, ignoring its max_drones.
+
+        Args:
+            line: end_hub line.
+
+        Returns:
+            The end hub.
+
+        Raises:
+            ParsingError: If the line is invalid.
+        """
         return self.__parse_hub(
             line=line,
             expected_prefix="end_hub:",
@@ -374,6 +556,17 @@ class Parser:
         )
 
     def __split_connection_line(self, line: str) -> List[str]:
+        """Split a connection line and check its token count.
+
+        Args:
+            line: Connection line.
+
+        Returns:
+            The tokens of the line.
+
+        Raises:
+            ParsingError: If the number of tokens is wrong.
+        """
         splitted_line = self.__split_line(line)
         splitted_line_len = len(splitted_line)
         if splitted_line_len < 2 or splitted_line_len > 3:
@@ -390,6 +583,18 @@ class Parser:
     def __extract_hub_names(
         self, splitted_line: List[str], available_hubs: List[Node]
     ) -> Tuple[str, str]:
+        """Get the two zone names of a connection.
+
+        Args:
+            splitted_line: Tokens of the connection line.
+            available_hubs: Zones defined so far.
+
+        Returns:
+            The names of the two connected zones.
+
+        Raises:
+            ParsingError: If a name is missing or not defined yet.
+        """
         available_hub_names = [
             available_hub.name for available_hub in available_hubs
         ]
@@ -426,6 +631,17 @@ class Parser:
     def __extract_max_link_capacity(
         self, metadata: Dict[str, Union[str, int]]
     ) -> int:
+        """Get the link capacity from parsed metadata.
+
+        Args:
+            metadata: Parsed metadata.
+
+        Returns:
+            The capacity, 1 if unspecified.
+
+        Raises:
+            ParsingError: If the capacity is lower than 1.
+        """
         max_link_capacity = metadata.get("max_link_capacity")
         if max_link_capacity is None:
             max_link_capacity = 1
@@ -437,6 +653,18 @@ class Parser:
     def __parse_connection(
         self, line: str, available_hubs: List[Node]
     ) -> Connection:
+        """Parse a connection line.
+
+        Args:
+            line: Connection line.
+            available_hubs: Zones defined so far.
+
+        Returns:
+            The parsed connection.
+
+        Raises:
+            ParsingError: If the line is invalid or links a zone to itself.
+        """
         splitted_line = self.__split_connection_line(line)
 
         hub1_name, hub2_name = self.__extract_hub_names(
@@ -491,9 +719,29 @@ class Parser:
         )
 
     def __filter_lines(self, lines: List[str], prefix: str) -> List[str]:
+        """Keep the lines starting with a prefix.
+
+        Args:
+            lines: Lines to filter.
+            prefix: Prefix to look for.
+
+        Returns:
+            The matching lines.
+        """
         return [line for line in lines if line.startswith(prefix)]
 
     def __get_nb_drones_line(self, lines: List[str]) -> str:
+        """Find the nb_drones line.
+
+        Args:
+            lines: Lines of the map.
+
+        Returns:
+            The nb_drones line.
+
+        Raises:
+            ParsingError: If there is not exactly one nb_drones line.
+        """
         filtered = self.__filter_lines(lines, "nb_drones: ")
         if len(filtered) < 1:
             raise ParsingError("File misses a nb_drones line")
@@ -502,11 +750,27 @@ class Parser:
         return filtered[0]
 
     def __strip_line(self, line: str) -> str:
+        """Remove the comment and surrounding whitespace of a line.
+
+        Args:
+            line: Raw line.
+
+        Returns:
+            The stripped line.
+        """
         if "#" not in line:
             return line.strip()
         return line[: line.index("#")].strip()
 
     def __strip_lines(self, lines: List[str]) -> List[str]:
+        """Strip every line and drop the empty ones.
+
+        Args:
+            lines: Raw lines.
+
+        Returns:
+            The non-empty stripped lines.
+        """
         stripped_lines: List[str] = []
         for line in lines:
             stripped_line = self.__strip_line(line)
@@ -519,6 +783,11 @@ class Parser:
         return stripped_lines
 
     def __normalize_coordinates(self, nodes: List[Node]) -> None:
+        """Shift the coordinates so the minimum x and y are 0.
+
+        Args:
+            nodes: Zones to shift, modified in place.
+        """
         min_x = min(nodes, key=lambda node: node.x).x
         min_y = min(nodes, key=lambda node: node.y).y
         for node in nodes:
@@ -526,7 +795,17 @@ class Parser:
             node.y -= min_y
 
     def parse(self, map_content: str) -> Map:
+        """Parse the content of a map file.
 
+        Args:
+            map_content: Content of the map file.
+
+        Returns:
+            The parsed map, with its zones, connections and drones.
+
+        Raises:
+            ParsingError: If the map is invalid, with the line and the cause.
+        """
         try:
             lines = self.__strip_lines(map_content.split("\n"))
 

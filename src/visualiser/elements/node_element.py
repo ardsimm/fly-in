@@ -16,6 +16,11 @@ from .element import Element
 
 @final
 class NodeElement(Element):
+    """Zone drawn as a circle.
+
+    The border shows the zone type, the fill the zone color, the center the
+    capacity. The name is shown on hover.
+    """
 
     screen: pygame.Surface
     node_bounding_rect_size: int
@@ -33,6 +38,15 @@ class NodeElement(Element):
         max_y: int,
         node: Node,
     ) -> None:
+        """Initialise the element and subscribe to mouse moves.
+
+        Args:
+            screen: Surface to draw on.
+            node_bounding_rect_size: Size of one map unit, in pixels.
+            max_x: Maximum x coordinate of the map.
+            max_y: Maximum y coordinate of the map.
+            node: Zone to draw.
+        """
         super().__init__()
         self.screen = screen
         self.node_bounding_rect_size = node_bounding_rect_size
@@ -46,6 +60,11 @@ class NodeElement(Element):
         self.node_radius = floor(self.node_bounding_rect_size / 4)
 
     def update_hovered(self, mouse_pos: Tuple[int, int]) -> None:
+        """Update the hover state from the mouse position.
+
+        Args:
+            mouse_pos: Mouse position, in pixels.
+        """
         mouse_x, mouse_y = mouse_pos
         padding_x, padding_y = CoordinateManager.get_paddings(
             max_x=self.max_x,
@@ -76,6 +95,7 @@ class NodeElement(Element):
 
     @override
     def draw(self) -> None:
+        """Draw the zone, its capacity, and its name if hovered."""
         padding_x = 0
         padding_y = 0
         padding_x, padding_y = CoordinateManager.get_paddings(
