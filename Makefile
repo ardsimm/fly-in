@@ -29,14 +29,13 @@ clean:
 	find . -type d -name output -exec rm -rf {} +
 	find . -type d -name stdout -exec rm -rf {} +
 	find . -type d -name stderr -exec rm -rf {} +
-	rm -f $(NAME) $(TEST_NAME)
 
 fclean: clean
 	rm -rf .venv
 
 flake8: install
 	echo Running Flake8
-	uv run python -m flake8 . --exclude=$(VENV),llm_sdk
+	uv run python -m flake8 . --exclude=$(VENV)
 
 mypy: install
 	echo Running Mypy
@@ -53,4 +52,4 @@ lint-strict: flake8 mypy-strict
 black: install
 	uv run python -m black --line-length 79 .
 
-.phony: install run debug re re-deps clean fclean flake8 mypy lint mypy-strict lint-strict black
+.PHONY: run install debug build re re-deps clean fclean flake8 mypy lint mypy-strict lint-strict black
