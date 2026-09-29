@@ -398,7 +398,7 @@ class Simulation:
     def print_turns(
         self, turns: List[List[Tuple[Drone, Union[Connection, Node]]]]
     ) -> None:
-        for turn in turns:
+        for turn in turns[1:]:
             for drone, step in turn:
                 print(drone, step, sep="-", end=" ")
             print()
