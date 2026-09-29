@@ -3,7 +3,7 @@ name = "fly-in"
 version = "0.1.0"
 description = "My project"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
     "black>=26.5.1",
     "flake8>=7.3.0",
